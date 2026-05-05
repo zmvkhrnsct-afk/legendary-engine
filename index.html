@@ -25,7 +25,7 @@
             background: white;
             border-radius: 32px;
             box-shadow: 0 20px 60px rgba(0,0,0,0.3);
-            max-width: 500px;
+            max-width: 550px;
             width: 100%;
             padding: 40px 32px;
             text-align: center;
@@ -66,6 +66,7 @@
             border-radius: 16px;
             transition: all 0.2s;
             font-family: inherit;
+            box-sizing: border-box;
         }
 
         input:focus {
@@ -146,17 +147,21 @@
             margin-left: 4px;
         }
 
-        /* Стили для админ-панели */
         .admin-panel {
             margin-top: 20px;
             padding-top: 16px;
             border-top: 2px dashed #667eea;
+            display: none;
         }
 
-        .admin-btn {
+        .admin-panel.show {
+            display: block;
+        }
+
+.admin-btn {
             background: #333 !important;
             margin-top: 12px !important;
-}
+        }
 
         .admin-hint {
             margin-top: 12px;
@@ -191,6 +196,12 @@
             background: #dc2626 !important;
             margin-top: 8px !important;
         }
+
+        .toggle-admin-btn {
+            background: #555 !important;
+            margin-top: 16px !important;
+            font-size: 14px !important;
+        }
     </style>
 </head>
 <body>
@@ -219,22 +230,54 @@
 
         <div id="successMessage" class="success"></div>
         <div id="errorMessage" class="error"></div>
+        
+        <!-- Кнопка для переключения админ-панели -->
+        <button id="toggleAdminBtn" class="toggle-admin-btn">🔐  Админ-панель (только для организатора)</button>
+        
         <div class="info">
             🔒 Нажимая кнопку, вы даёте согласие на обработку персональных данных
+        </div>
+
+        <!-- Админ-панель -->
+        <div id="adminPanel" class="admin-panel">
+            <div style="background:#667eea; color:white; padding:8px; border-radius:12px; text-align:center; margin-bottom:16px;">
+                ⚙️  Админ-панель
+            </div>
+            <button id="adminDownloadBtn" class="admin-btn" style="background:#667eea !important;">📥 Скачать список (CSV)</button>
+            <button id="adminClearBtn" class="admin-btn clear-btn">🗑️  Очистить всех участников</button>
+            <div class="admin-hint">
+                📊  Всего зарегистрировано: <strong id="totalCount">0</strong>
+            </div>
+            <div id="participantsList" class="participant-list"></div>
+            <div class="admin-hint" style="margin-top:8px; font-size:11px; color:#666;">
+                💾  Данные хранятся в вашем браузере. При очистке кэша они удалятся.
+            </div>
         </div>
     </div>
 
     <script>
-        // === НАСТРОЙКА: сюда данные будут отправляться ===
-        // Раскомментируйте и вставьте вашу ссылку от Google Apps Script, если хотите отправку в Google Таблицы
+        // КОНФИГУРАЦИЯ
         // const GOOGLE_SCRIPT_URL = 'https://script.google.com/macros/s/ВАШ_АЙДИ/exec';
         
         const form = document.getElementById('registerForm');
         const btn = document.getElementById('submitBtn');
         const successDiv = document.getElementById('successMessage');
         const errorDiv = document.getElementById('errorMessage');
+        const toggleAdminBtn = document.getElementById('toggleAdminBtn');
+        const adminPanel = document.getElementById('adminPanel');
 
-        // Вспомогательные функции
+        // Показываем/скрываем админ-панель
+
+toggleAdminBtn.addEventListener('click', () => {
+            adminPanel.classList.toggle('show');
+            if (adminPanel.classList.contains('show')) {
+                updateAdminPanel();
+                toggleAdminBtn.textContent = '🔒 Скрыть админ-панель';
+            } else {
+                toggleAdminBtn.textContent = '🔐  Админ-панель (только для организатора)';
+            }
+        });
+
         function showSuccess(text) {
             successDiv.style.display = 'block';
             successDiv.innerText = text || '✓ Вы успешно зарегистрированы! Добро пожаловать.';
@@ -260,18 +303,15 @@
             }
         }
 
-        // Получить ФИО одной строкой
         function getFullName() {
             const lastName = document.getElementById('lastName').value.trim();
             const firstName = document.getElementById('firstName').value.trim();
             const middleName = document.getElementById('middleName').value.trim();
-            
             let fullName = `${lastName} ${firstName}`;
             if (middleName) fullName += ` ${middleName}`;
             return fullName;
-}
+        }
 
-        // Сохранить запись в локальном хранилище
         function saveToLocal(data) {
             try {
                 let participants = JSON.parse(localStorage.getItem('participants') || '[]');
@@ -286,7 +326,6 @@
             }
         }
 
-        // Получить всех участников
         function getParticipants() {
             try {
                 return JSON.parse(localStorage.getItem('participants') || '[]');
@@ -295,18 +334,14 @@
             }
         }
 
-        // Очистить всех участников
         function clearParticipants() {
             if (confirm('Вы уверены, что хотите удалить ВСЕХ участников? Это действие нельзя отменить.')) {
                 localStorage.setItem('participants', '[]');
                 showSuccess('Список участников очищен');
-                if (window.location.search.includes('admin=1')) {
-                    location.reload();
-                }
+                updateAdminPanel();
             }
         }
 
-        // Отправить в Google Sheets или локально
         async function sendToGoogleSheets(data) {
             if (typeof GOOGLE_SCRIPT_URL !== 'undefined' && GOOGLE_SCRIPT_URL && GOOGLE_SCRIPT_URL.includes('script.google.com')) {
                 try {
@@ -326,7 +361,6 @@
             }
         }
 
-        // Скачать CSV
         function downloadParticipants() {
             const participants = getParticipants();
             if (participants.length === 0) {
@@ -338,7 +372,8 @@
             participants.forEach(p => {
                 const row = [
                     p.id,
-                    p.lastName,
+
+p.lastName,
                     p.firstName,
                     p.middleName || '',
                     p.fullName,
@@ -360,7 +395,6 @@
             showSuccess(`Скачано ${participants.length} записей`);
         }
 
-        // Показать список участников на странице (админ-режим)
         function showParticipantsList() {
             const participants = getParticipants();
             const container = document.getElementById('participantsList');
@@ -373,18 +407,31 @@
             
             let html = '';
             participants.slice().reverse().forEach(p => {
-data-id
-DATA ID: One simple link you only need.
-Create a beautiful portfolio/resume within 1 minute. This simple short-named url gives you an easy-to-access rich page you can express yourself most. Try it now without commitment.
-html += `<div class="participant-item">
-                    <strong>${p.fullName}</strong><br>
-                    <small style="color:#888;">${p.timestamp}</small>
+                html += `<div class="participant-item">
+                    <strong>${escapeHtml(p.fullName)}</strong><br>
+                    <small style="color:#888;">${escapeHtml(p.timestamp)}</small>
                 </div>`;
             });
             container.innerHTML = html;
         }
+        
+        function escapeHtml(str) {
+            if (!str) return '';
+            return str.replace(/[&<>]/g, function(m) {
+                if (m === '&') return '&amp;';
+                if (m === '<') return '&lt;';
+                if (m === '>') return '&gt;';
+                return m;
+            });
+        }
 
-        // Основной обработчик отправки
+        function updateAdminPanel() {
+            const participants = getParticipants();
+            const totalSpan = document.getElementById('totalCount');
+            if (totalSpan) totalSpan.innerText = participants.length;
+            showParticipantsList();
+        }
+
         form.addEventListener('submit', async (e) => {
             e.preventDefault();
 
@@ -414,11 +461,7 @@ html += `<div class="participant-item">
                 if (result !== false) {
                     showSuccess(`${fullName}, спасибо за регистрацию! Ждём вас.`);
                     form.reset();
-                    
-                    // Обновляем список в админ-режиме
-                    if (window.location.search.includes('admin=1')) {
-                        showParticipantsList();
-                    }
+                    updateAdminPanel();
                 } else {
                     showError('Не удалось сохранить. Попробуйте позже.');
                 }
@@ -430,52 +473,9 @@ html += `<div class="participant-item">
             }
         });
 
-        // ========== АДМИН-РЕЖИМ ==========
-        // Если в URL есть ?admin=1 — показываем панель управления
-        if (window.location.search.includes('admin=1')) {
-            const card = document.querySelector('.card');
-            
-            // Создаём панель администратора
-            const adminPanel = document.createElement('div');
-            adminPanel.className = 'admin-panel';
-            adminPanel.innerHTML = `
-                <div style="background:#667eea; color:white; padding:8px; border-radius:12px; text-align:center; margin-bottom:16px;">
-                    ⚙️  Админ-панель
-                </div>
-                <button id="adminDownloadBtn" class="admin-btn" style="background:#667eea !important;">📥 Скачать список (CSV)</button>
-                <button id="adminClearBtn" class="admin-btn clear-btn">🗑️  Очистить всех участников</button>
-                <div class="admin-hint">
-                    📊  Всего зарегистрировано: <strong id="totalCount">0</strong>
-                </div>
-                <div id="participantsList" class="participant-list"></div>
-            `;
-            card.appendChild(adminPanel);
-            
-            // Обновляем счётчик и список
-            function updateAdminPanel() {
-                const participants = getParticipants();
-                const totalSpan = document.getElementById('totalCount');
-                if (totalSpan) totalSpan.innerText = participants.length;
-                showParticipantsList();
-            }
-            
-            // Вешаем обработчики
-            document.getElementById('adminDownloadBtn').onclick = downloadParticipants;
-            document.getElementById('adminClearBtn').onclick = clearParticipants;
-            
-            // Заполняем данные
-            updateAdminPanel();
-            
-            // Добавляем подсказку о том, где хранятся данные
-            const storageHint = document.createElement('div');
-            storageHint.className = 'admin-hint';
-            storageHint.style.marginTop = '8px';
-            storageHint.style.fontSize = '11px';
-
-storageHint.style.color = '#666';
-            storageHint.innerHTML = '💾  Данные хранятся в вашем браузере. При очистке кэша они удалятся. Для постоянного хранения настройте Google Таблицы.';
-            card.appendChild(storageHint);
-        }
+        // Вешаем обработчики для админ-кнопок (они могут быть созданы позже, но мы их найдём)
+        document.getElementById('adminDownloadBtn').onclick = downloadParticipants;
+        document.getElementById('adminClearBtn').onclick = clearParticipants;
     </script>
 </body>
 </html>
