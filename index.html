@@ -25,7 +25,7 @@
             background: white;
             border-radius: 32px;
             box-shadow: 0 20px 60px rgba(0,0,0,0.3);
-            max-width: 550px;
+            max-width: 500px;
             width: 100%;
             padding: 40px 32px;
             text-align: center;
@@ -146,72 +146,17 @@
             color: #dc2626;
             margin-left: 4px;
         }
-
-        .admin-panel {
-            margin-top: 20px;
-            padding-top: 16px;
-            border-top: 2px dashed #667eea;
-            display: none;
-        }
-
-        .admin-panel.show {
-            display: block;
-        }
-
-.admin-btn {
-            background: #333 !important;
-            margin-top: 12px !important;
-        }
-
-        .admin-hint {
-            margin-top: 12px;
-            background: #f0f0f0;
-            padding: 10px;
-            border-radius: 12px;
-            font-size: 12px;
-            text-align: left;
-        }
-
-        .participant-list {
-            margin-top: 16px;
-            text-align: left;
-            max-height: 300px;
-            overflow-y: auto;
-            border: 1px solid #eee;
-            border-radius: 12px;
-            padding: 8px;
-        }
-
-        .participant-item {
-            padding: 8px;
-            border-bottom: 1px solid #eee;
-            font-size: 14px;
-        }
-
-        .participant-item:last-child {
-            border-bottom: none;
-        }
-
-        .clear-btn {
-            background: #dc2626 !important;
-            margin-top: 8px !important;
-        }
-
-        .toggle-admin-btn {
-            background: #555 !important;
-            margin-top: 16px !important;
-            font-size: 14px !important;
-        }
     </style>
 </head>
 <body>
-    <div class="card" id="app">
+    <div class="card">
         <h1>📝  Регистрация участника</h1>
         <div class="subtitle">Пожалуйста, представьтесь для входа</div>
 
         <form id="registerForm">
             <div class="form-group">
-                <label>Фамилия <span class="field-required">*</span></label>
+
+<label>Фамилия <span class="field-required">*</span></label>
                 <input type="text" id="lastName" placeholder="Иванов" autocomplete="off" required>
             </div>
 
@@ -230,53 +175,19 @@
 
         <div id="successMessage" class="success"></div>
         <div id="errorMessage" class="error"></div>
-        
-        <!-- Кнопка для переключения админ-панели -->
-        <button id="toggleAdminBtn" class="toggle-admin-btn">🔐  Админ-панель (только для организатора)</button>
-        
         <div class="info">
             🔒 Нажимая кнопку, вы даёте согласие на обработку персональных данных
-        </div>
-
-        <!-- Админ-панель -->
-        <div id="adminPanel" class="admin-panel">
-            <div style="background:#667eea; color:white; padding:8px; border-radius:12px; text-align:center; margin-bottom:16px;">
-                ⚙️  Админ-панель
-            </div>
-            <button id="adminDownloadBtn" class="admin-btn" style="background:#667eea !important;">📥 Скачать список (CSV)</button>
-            <button id="adminClearBtn" class="admin-btn clear-btn">🗑️  Очистить всех участников</button>
-            <div class="admin-hint">
-                📊  Всего зарегистрировано: <strong id="totalCount">0</strong>
-            </div>
-            <div id="participantsList" class="participant-list"></div>
-            <div class="admin-hint" style="margin-top:8px; font-size:11px; color:#666;">
-                💾  Данные хранятся в вашем браузере. При очистке кэша они удалятся.
-            </div>
         </div>
     </div>
 
     <script>
-        // КОНФИГУРАЦИЯ
-        // const GOOGLE_SCRIPT_URL = 'https://script.google.com/macros/s/ВАШ_АЙДИ/exec';
+        // === ВАША ССЫЛКА НА GOOGLE APPS SCRIPT ===
+        const GOOGLE_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbyiRU0gLCXwGPxptJw5P9Ldh0DkzzTu9kodOvmcJx8FLwpydIvD_XoyNxDU9fTf1euBqw/exec';
         
         const form = document.getElementById('registerForm');
         const btn = document.getElementById('submitBtn');
         const successDiv = document.getElementById('successMessage');
         const errorDiv = document.getElementById('errorMessage');
-        const toggleAdminBtn = document.getElementById('toggleAdminBtn');
-        const adminPanel = document.getElementById('adminPanel');
-
-        // Показываем/скрываем админ-панель
-
-toggleAdminBtn.addEventListener('click', () => {
-            adminPanel.classList.toggle('show');
-            if (adminPanel.classList.contains('show')) {
-                updateAdminPanel();
-                toggleAdminBtn.textContent = '🔒 Скрыть админ-панель';
-            } else {
-                toggleAdminBtn.textContent = '🔐  Админ-панель (только для организатора)';
-            }
-        });
 
         function showSuccess(text) {
             successDiv.style.display = 'block';
@@ -307,131 +218,32 @@ toggleAdminBtn.addEventListener('click', () => {
             const lastName = document.getElementById('lastName').value.trim();
             const firstName = document.getElementById('firstName').value.trim();
             const middleName = document.getElementById('middleName').value.trim();
+            
             let fullName = `${lastName} ${firstName}`;
             if (middleName) fullName += ` ${middleName}`;
             return fullName;
         }
 
-        function saveToLocal(data) {
+        // Отправка в Google Таблицу
+        async function sendToGoogleSheets(data) {
             try {
-                let participants = JSON.parse(localStorage.getItem('participants') || '[]');
-                data.id = Date.now();
-                data.timestamp = new Date().toLocaleString('ru-RU');
-                participants.push(data);
-                localStorage.setItem('participants', JSON.stringify(participants));
+                const response = await fetch(GOOGLE_SCRIPT_URL, {
+                    method: 'POST',
+                    mode: 'no-cors',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify(data)
+                });
+                // при режиме no-cors мы не можем прочитать ответ, но запрос ушёл
                 return true;
-            } catch(e) {
-                console.error(e);
+            } catch (err) {
+                console.error('Ошибка:', err);
                 return false;
             }
         }
 
-        function getParticipants() {
-            try {
-                return JSON.parse(localStorage.getItem('participants') || '[]');
-            } catch(e) {
-                return [];
-            }
-        }
-
-        function clearParticipants() {
-            if (confirm('Вы уверены, что хотите удалить ВСЕХ участников? Это действие нельзя отменить.')) {
-                localStorage.setItem('participants', '[]');
-                showSuccess('Список участников очищен');
-                updateAdminPanel();
-            }
-        }
-
-        async function sendToGoogleSheets(data) {
-            if (typeof GOOGLE_SCRIPT_URL !== 'undefined' && GOOGLE_SCRIPT_URL && GOOGLE_SCRIPT_URL.includes('script.google.com')) {
-                try {
-                    await fetch(GOOGLE_SCRIPT_URL, {
-                        method: 'POST',
-                        mode: 'no-cors',
-                        headers: { 'Content-Type': 'application/json' },
-                        body: JSON.stringify(data)
-                    });
-                    return true;
-                } catch(e) {
-                    console.error('Google Sheets error:', e);
-                    return false;
-                }
-            } else {
-                return saveToLocal(data);
-            }
-        }
-
-        function downloadParticipants() {
-            const participants = getParticipants();
-            if (participants.length === 0) {
-                alert('Список участников пуст');
-                return;
-            }
-            
-            let csv = "ID,Фамилия,Имя,Отчество,Полное имя,Время регистрации\n";
-            participants.forEach(p => {
-                const row = [
-                    p.id,
-
-p.lastName,
-                    p.firstName,
-                    p.middleName || '',
-                    p.fullName,
-                    p.timestamp
-                ].map(cell => `"${String(cell).replace(/"/g, '""')}"`).join(',');
-                csv += row + "\n";
-            });
-            
-            const blob = new Blob(["\uFEFF" + csv], {type: 'text/csv;charset=utf-8;'});
-            const link = document.createElement('a');
-            const url = URL.createObjectURL(blob);
-            link.href = url;
-            link.setAttribute('download', `participants_${new Date().toISOString().slice(0,19).replace(/:/g, '-')}.csv`);
-            document.body.appendChild(link);
-            link.click();
-            document.body.removeChild(link);
-            URL.revokeObjectURL(url);
-            
-            showSuccess(`Скачано ${participants.length} записей`);
-        }
-
-        function showParticipantsList() {
-            const participants = getParticipants();
-            const container = document.getElementById('participantsList');
-            if (!container) return;
-            
-            if (participants.length === 0) {
-                container.innerHTML = '<div class="participant-item" style="color:#888;">Пока никого нет</div>';
-                return;
-            }
-            
-            let html = '';
-            participants.slice().reverse().forEach(p => {
-                html += `<div class="participant-item">
-                    <strong>${escapeHtml(p.fullName)}</strong><br>
-                    <small style="color:#888;">${escapeHtml(p.timestamp)}</small>
-                </div>`;
-            });
-            container.innerHTML = html;
-        }
-        
-        function escapeHtml(str) {
-            if (!str) return '';
-            return str.replace(/[&<>]/g, function(m) {
-                if (m === '&') return '&amp;';
-                if (m === '<') return '&lt;';
-                if (m === '>') return '&gt;';
-                return m;
-            });
-        }
-
-        function updateAdminPanel() {
-            const participants = getParticipants();
-            const totalSpan = document.getElementById('totalCount');
-            if (totalSpan) totalSpan.innerText = participants.length;
-            showParticipantsList();
-        }
-
+        // Основной обработчик
         form.addEventListener('submit', async (e) => {
             e.preventDefault();
 
@@ -443,39 +255,34 @@ p.lastName,
                 return;
             }
 
-            const middleName = document.getElementById('middleName').value.trim();
+const middleName = document.getElementById('middleName').value.trim();
             const fullName = getFullName();
 
             const participantData = {
-                lastName,
-                firstName,
-                middleName,
-                fullName
+                lastName: lastName,
+                firstName: firstName,
+                middleName: middleName,
+                fullName: fullName
             };
 
             setLoading(true);
             
             try {
-                const result = await sendToGoogleSheets(participantData);
+                const success = await sendToGoogleSheets(participantData);
                 
-                if (result !== false) {
+                if (success) {
                     showSuccess(`${fullName}, спасибо за регистрацию! Ждём вас.`);
                     form.reset();
-                    updateAdminPanel();
                 } else {
                     showError('Не удалось сохранить. Попробуйте позже.');
                 }
             } catch (err) {
-                console.error(err);
+                console.error('Ошибка:', err);
                 showError('Ошибка соединения. Проверьте интернет.');
             } finally {
                 setLoading(false);
             }
         });
-
-        // Вешаем обработчики для админ-кнопок (они могут быть созданы позже, но мы их найдём)
-        document.getElementById('adminDownloadBtn').onclick = downloadParticipants;
-        document.getElementById('adminClearBtn').onclick = clearParticipants;
     </script>
 </body>
 </html>
