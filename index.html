@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
-    <title>Регистрация участника</title>
+    <title>Бессмертный полк — регистрация участника</title>
     <style>
         * {
             margin: 0;
@@ -12,37 +12,135 @@
         }
 
         body {
-            font-family: system-ui, -apple-system, 'Segoe UI', Roboto, 'Helvetica Neue', sans-serif;
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            font-family: 'Georgia', 'Times New Roman', 'Segoe UI', serif;
+            background: linear-gradient(135deg, #1a1a1a 0%, #2d1a1a 50%, #1a0a0a 100%);
             min-height: 100vh;
             display: flex;
             justify-content: center;
             align-items: center;
             padding: 20px;
+            position: relative;
+        }
+
+        /* Фоновый узор из звёзд */
+        body::before {
+            content: "★";
+            font-size: 300px;
+            color: rgba(255, 215, 0, 0.03);
+            position: fixed;
+            bottom: 0;
+            right: 0;
+            pointer-events: none;
+        }
+
+        body::after {
+            content: "★";
+            font-size: 200px;
+            color: rgba(255, 215, 0, 0.03);
+            position: fixed;
+            top: 0;
+            left: 0;
+            pointer-events: none;
+        }
+
+        /* Георгиевская лента (верхняя) */
+        .ribbon-top {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 12px;
+            background: linear-gradient(90deg, 
+                #000 0%, #000 20%,
+                #FF8C00 20%, #FF8C00 40%,
+                #000 40%, #000 60%,
+                #FF8C00 60%, #FF8C00 80%,
+                #000 80%, #000 100%
+            );
+            background-size: 50px 100%;
+            z-index: 1000;
+        }
+
+        /* Георгиевская лента (нижняя) */
+        .ribbon-bottom {
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            height: 12px;
+            background: linear-gradient(90deg, 
+                #000 0%, #000 20%,
+                #FF8C00 20%, #FF8C00 40%,
+                #000 40%, #000 60%,
+                #FF8C00 60%, #FF8C00 80%,
+                #000 80%, #000 100%
+            );
+            background-size: 50px 100%;
+            z-index: 1000;
         }
 
         .card {
-            background: white;
-            border-radius: 32px;
-            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
-            max-width: 500px;
+            background: linear-gradient(145deg, #fffaf5 0%, #fff5ed 100%);
+            border-radius: 48px 48px 48px 24px;
+            box-shadow: 0 30px 60px rgba(0,0,0,0.5), inset 0 1px 0 rgba(255,255,255,0.8);
+            max-width: 550px;
             width: 100%;
             padding: 40px 32px;
             text-align: center;
+            position: relative;
+            border: 1px solid #d4a373;
+        }
+
+        /* Звезда в углу карточки */
+        .card::before {
+            content: "★";
+            position: absolute;
+            top: 20px;
+            right: 25px;
+            font-size: 35px;
+            color: #c41e3a;
+            opacity: 0.3;
+            font-weight: normal;
+        }
+
+        /* Орденская ленточка */
+        .medal-ribbon {
+            position: absolute;
+            top: -8px;
+            left: 30px;
+            width: 80px;
+            height: 25px;
+            background: repeating-linear-gradient(45deg, 
+                #000 0px, #000 8px,
+                #FF8C00 8px, #FF8C00 16px
+            );
+            border-radius: 15px 15px 0 0;
         }
 
         h1 {
-            font-size: 28px;
-            color: #1a1a2e;
+            font-size: 32px;
+            color: #8B0000;
             margin-bottom: 8px;
+            font-weight: bold;
+            letter-spacing: 2px;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.1);
         }
 
         .subtitle {
-            color: #666;
-            font-size: 15px;
-            margin-bottom: 32px;
-            border-bottom: 1px solid #eee;
+            color: #b5651e;
+            font-size: 16px;
+            margin-bottom: 24px;
+            border-bottom: 2px solid #c41e3a;
             padding-bottom: 16px;
+            display: inline-block;
+            font-style: italic;
+        }
+
+        .victory-symbol {
+            margin: 10px 0 20px;
+            font-size: 48px;
+            letter-spacing: 10px;
+            color: #c41e3a;
         }
 
         .form-group {
@@ -54,44 +152,51 @@
             display: block;
             font-weight: 600;
             margin-bottom: 8px;
-            color: #333;
-            font-size: 14px;
+            color: #5a2d0c;
+            font-size: 15px;
+            font-family: 'Segoe UI', sans-serif;
         }
 
         input {
             width: 100%;
-            padding: 14px 16px;
+            padding: 14px 18px;
             font-size: 16px;
-            border: 2px solid #e0e0e0;
-            border-radius: 16px;
+            border: 2px solid #e8c9a3;
+            border-radius: 40px;
             transition: all 0.2s;
             font-family: inherit;
+            background: white;
             box-sizing: border-box;
         }
 
         input:focus {
             outline: none;
-            border-color: #667eea;
-            box-shadow: 0 0 0 3px rgba(102,126,234,0.2);
+            border-color: #c41e3a;
+            box-shadow: 0 0 0 3px rgba(196,30,58,0.2);
         }
 
         button {
             width: 100%;
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            color: white;
+            background: linear-gradient(135deg, #8B0000 0%, #c41e3a 100%);
+            color: #FFD700;
             border: none;
-            padding: 14px;
-            font-size: 18px;
-            font-weight: 600;
-            border-radius: 40px;
+            padding: 16px;
+            font-size: 20px;
+            font-weight: bold;
+            border-radius: 50px;
             cursor: pointer;
-            transition: transform 0.1s, box-shadow 0.2s;
-            margin-top: 8px;
+            transition: all 0.2s;
+            margin-top: 16px;
+            font-family: 'Georgia', serif;
+            letter-spacing: 1px;
+            text-shadow: 1px 1px 0 #4a0000;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.3);
         }
 
         button:hover {
             transform: scale(1.02);
-            box-shadow: 0 10px 25px rgba(102,126,234,0.4);
+            background: linear-gradient(135deg, #a01020 0%, #d42a4a 100%);
+            box-shadow: 0 8px 20px rgba(0,0,0,0.4);
         }
 
         button:active {
@@ -99,32 +204,34 @@
         }
 
         .success {
-            background: #10b981;
-            color: white;
+            background: #2d6a4f;
+            color: #d4ffc4;
             padding: 14px;
-            border-radius: 20px;
+            border-radius: 40px;
             margin-top: 24px;
             font-weight: 500;
             display: none;
+            border-left: 6px solid #FFD700;
         }
 
         .error {
-            background: #fee2e2;
-            color: #dc2626;
-            padding: 12px;
-            border-radius: 20px;
+            background: #5a1a1a;
+            color: #ffb3b3;
+            padding: 14px;
+            border-radius: 40px;
             margin-top: 16px;
             font-size: 14px;
             display: none;
+            border-left: 6px solid #FFD700;
         }
 
         .spinner {
             display: inline-block;
-            width: 18px;
-            height: 18px;
-            border: 2px solid rgba(255,255,255,0.3);
+            width: 20px;
+            height: 20px;
+            border: 2px solid rgba(255,215,0,0.3);
             border-radius: 50%;
-            border-top-color: white;
+            border-top-color: #FFD700;
             animation: spin 0.6s linear infinite;
             margin-right: 8px;
             vertical-align: middle;
@@ -135,48 +242,68 @@
         }
 
         .info {
-            font-size: 12px;
-            color: #888;
-            margin-top: 24px;
+            font-size: 11px;
+            color: #a07858;
+            margin-top: 28px;
             padding-top: 16px;
-            border-top: 1px solid #eee;
+            border-top: 1px dashed #e8c9a3;
+            font-family: 'Segoe UI', sans-serif;
         }
 
         .field-required {
-            color: #dc2626;
+            color: #c41e3a;
             margin-left: 4px;
+        }
+
+        .poem-line {
+            font-size: 12px;
+            color: #b5651e;
+            margin-top: 20px;
+            font-style: italic;
+            line-height: 1.4;
         }
     </style>
 </head>
 <body>
+    <div class="ribbon-top"></div>
+    <div class="ribbon-bottom"></div>
+
     <div class="card">
-        <h1>📝  Регистрация участника</h1>
-        <div class="subtitle">Пожалуйста, представьтесь для входа</div>
+        <div class="medal-ribbon"></div>
+        <div class="victory-symbol">
+            <span>★</span> <span style="color:#FFD700;">⚔️</span> <span>★</span>
+        </div>
+        <h1>БЕССМЕРТНЫЙ ПОЛК</h1>
+        <div class="subtitle">Помним • Гордимся • Благодарим</div>
 
         <form id="registerForm">
             <div class="form-group">
-
-<label>Фамилия <span class="field-required">*</span></label>
+                <label>Фамилия ветерана <span class="field-required">*</span></label>
                 <input type="text" id="lastName" placeholder="Иванов" autocomplete="off" required>
             </div>
 
             <div class="form-group">
-                <label>Имя <span class="field-required">*</span></label>
+                <label>Имя ветерана <span class="field-required">*</span></label>
                 <input type="text" id="firstName" placeholder="Иван" autocomplete="off" required>
             </div>
 
             <div class="form-group">
-                <label>Отчество</label>
-                <input type="text" id="middleName" placeholder="Иванович (при наличии)" autocomplete="off">
+                <label>Отчество ветерана</label>
+                <input type="text" id="middleName" placeholder="Иванович" autocomplete="off">
             </div>
 
-            <button type="submit" id="submitBtn">✅ Записаться на мероприятие</button>
+            <button type="submit" id="submitBtn">⭐ ЗАПИСАТЬ В БЕССМЕРТНЫЙ ПОЛК ⭐</button>
         </form>
 
         <div id="successMessage" class="success"></div>
         <div id="errorMessage" class="error"></div>
+        
+        <div class="poem-line">
+            «Никто не забыт, ничто не забыто»
+        </div>
         <div class="info">
-            🔒 Нажимая кнопку, вы даёте согласие на обработку персональных данных
+            🕯️ Нажимая кнопку, вы подтверждаете, что ваш герой достоин памяти<br>
+            Данные будут внесены в общий список Бессмертного полка
         </div>
     </div>
 
@@ -191,11 +318,11 @@
 
         function showSuccess(text) {
             successDiv.style.display = 'block';
-            successDiv.innerText = text || '✓ Вы успешно зарегистрированы! Добро пожаловать.';
+            successDiv.innerText = text || '✓ Спасибо! Ваш герой будет в строю Бессмертного полка.';
             errorDiv.style.display = 'none';
             setTimeout(() => {
                 successDiv.style.display = 'none';
-            }, 5000);
+            }, 6000);
         }
 
         function showError(text) {
@@ -210,7 +337,7 @@
                 btn.innerHTML = '<span class="spinner"></span> Отправка...';
             } else {
                 btn.disabled = false;
-                btn.innerHTML = '✅ Записаться на мероприятие';
+                btn.innerHTML = '⭐ ЗАПИСАТЬ В БЕССМЕРТНЫЙ ПОЛК ⭐';
             }
         }
 
@@ -224,18 +351,14 @@
             return fullName;
         }
 
-        // Отправка в Google Таблицу
         async function sendToGoogleSheets(data) {
             try {
-                const response = await fetch(GOOGLE_SCRIPT_URL, {
+                await fetch(GOOGLE_SCRIPT_URL, {
                     method: 'POST',
                     mode: 'no-cors',
-                    headers: {
-                        'Content-Type': 'application/json'
-                    },
+                    headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify(data)
                 });
-                // при режиме no-cors мы не можем прочитать ответ, но запрос ушёл
                 return true;
             } catch (err) {
                 console.error('Ошибка:', err);
@@ -243,7 +366,6 @@
             }
         }
 
-        // Основной обработчик
         form.addEventListener('submit', async (e) => {
             e.preventDefault();
 
@@ -251,11 +373,11 @@
             const firstName = document.getElementById('firstName').value.trim();
             
             if (!lastName || !firstName) {
-                showError('Пожалуйста, заполните фамилию и имя');
+                showError('Пожалуйста, заполните фамилию и имя ветерана');
                 return;
             }
 
-const middleName = document.getElementById('middleName').value.trim();
+            const middleName = document.getElementById('middleName').value.trim();
             const fullName = getFullName();
 
             const participantData = {
@@ -271,7 +393,7 @@ const middleName = document.getElementById('middleName').value.trim();
                 const success = await sendToGoogleSheets(participantData);
                 
                 if (success) {
-                    showSuccess(`${fullName}, спасибо за регистрацию! Ждём вас.`);
+                    showSuccess(`${fullName} добавлен в Бессмертный полк! Вечная память герою.`);
                     form.reset();
                 } else {
                     showError('Не удалось сохранить. Попробуйте позже.');
