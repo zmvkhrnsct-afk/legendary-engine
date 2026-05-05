@@ -145,17 +145,62 @@
             color: #dc2626;
             margin-left: 4px;
         }
+
+        /* Стили для админ-панели */
+        .admin-panel {
+            margin-top: 20px;
+            padding-top: 16px;
+            border-top: 2px dashed #667eea;
+        }
+
+        .admin-btn {
+            background: #333 !important;
+            margin-top: 12px !important;
+}
+
+        .admin-hint {
+            margin-top: 12px;
+            background: #f0f0f0;
+            padding: 10px;
+            border-radius: 12px;
+            font-size: 12px;
+            text-align: left;
+        }
+
+        .participant-list {
+            margin-top: 16px;
+            text-align: left;
+            max-height: 300px;
+            overflow-y: auto;
+            border: 1px solid #eee;
+            border-radius: 12px;
+            padding: 8px;
+        }
+
+        .participant-item {
+            padding: 8px;
+            border-bottom: 1px solid #eee;
+            font-size: 14px;
+        }
+
+        .participant-item:last-child {
+            border-bottom: none;
+        }
+
+        .clear-btn {
+            background: #dc2626 !important;
+            margin-top: 8px !important;
+        }
     </style>
 </head>
 <body>
-    <div class="card">
+    <div class="card" id="app">
         <h1>📝  Регистрация участника</h1>
         <div class="subtitle">Пожалуйста, представьтесь для входа</div>
 
         <form id="registerForm">
             <div class="form-group">
-16:07
-<label>Фамилия <span class="field-required">*</span></label>
+                <label>Фамилия <span class="field-required">*</span></label>
                 <input type="text" id="lastName" placeholder="Иванов" autocomplete="off" required>
             </div>
 
@@ -181,11 +226,8 @@
 
     <script>
         // === НАСТРОЙКА: сюда данные будут отправляться ===
-        // Вариант 1: Google Таблицы (через Web App URL)
+        // Раскомментируйте и вставьте вашу ссылку от Google Apps Script, если хотите отправку в Google Таблицы
         // const GOOGLE_SCRIPT_URL = 'https://script.google.com/macros/s/ВАШ_АЙДИ/exec';
-        
-        // Вариант 2: Просто сохранять в localStorage и показывать скачивание
-        // (пока настроен этот вариант для демо)
         
         const form = document.getElementById('registerForm');
         const btn = document.getElementById('submitBtn');
@@ -227,14 +269,14 @@
             let fullName = `${lastName} ${firstName}`;
             if (middleName) fullName += ` ${middleName}`;
             return fullName;
-        }
+}
 
-        // Сохранить запись в локальном хранилище (демо-режим)
+        // Сохранить запись в локальном хранилище
         function saveToLocal(data) {
             try {
                 let participants = JSON.parse(localStorage.getItem('participants') || '[]');
                 data.id = Date.now();
-                data.timestamp = new Date().toISOString();
+                data.timestamp = new Date().toLocaleString('ru-RU');
                 participants.push(data);
                 localStorage.setItem('participants', JSON.stringify(participants));
                 return true;
@@ -244,35 +286,109 @@
             }
         }
 
-        // ВАРИАНТ 1: Отправка в Google Таблицы (раскомментировать и настроить GOOGLE_SCRIPT_URL)
+        // Получить всех участников
+        function getParticipants() {
+            try {
+                return JSON.parse(localStorage.getItem('participants') || '[]');
+            } catch(e) {
+                return [];
+            }
+        }
+
+        // Очистить всех участников
+        function clearParticipants() {
+            if (confirm('Вы уверены, что хотите удалить ВСЕХ участников? Это действие нельзя отменить.')) {
+                localStorage.setItem('participants', '[]');
+                showSuccess('Список участников очищен');
+                if (window.location.search.includes('admin=1')) {
+                    location.reload();
+                }
+            }
+        }
+
+        // Отправить в Google Sheets или локально
         async function sendToGoogleSheets(data) {
-            // если константа не задана — используем локальное сохранение
-            if (typeof GOOGLE_SCRIPT_URL !== 'undefined' && GOOGLE_SCRIPT_URL) {
-                const response = await fetch(GOOGLE_SCRIPT_URL, {
-16:07
-method: 'POST',
-                    mode: 'no-cors',
-                    headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
-                    body: new URLSearchParams({
-                        lastName: data.lastName,
-                        firstName: data.firstName,
-                        middleName: data.middleName || '',
-                        fullName: data.fullName,
-                        timestamp: new Date().toISOString()
-                    })
-                });
-                return true;
+            if (typeof GOOGLE_SCRIPT_URL !== 'undefined' && GOOGLE_SCRIPT_URL && GOOGLE_SCRIPT_URL.includes('script.google.com')) {
+                try {
+                    await fetch(GOOGLE_SCRIPT_URL, {
+                        method: 'POST',
+                        mode: 'no-cors',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify(data)
+                    });
+                    return true;
+                } catch(e) {
+                    console.error('Google Sheets error:', e);
+                    return false;
+                }
             } else {
-                // Запасной вариант: локальное сохранение
                 return saveToLocal(data);
             }
+        }
+
+        // Скачать CSV
+        function downloadParticipants() {
+            const participants = getParticipants();
+            if (participants.length === 0) {
+                alert('Список участников пуст');
+                return;
+            }
+            
+            let csv = "ID,Фамилия,Имя,Отчество,Полное имя,Время регистрации\n";
+            participants.forEach(p => {
+                const row = [
+                    p.id,
+                    p.lastName,
+                    p.firstName,
+                    p.middleName || '',
+                    p.fullName,
+                    p.timestamp
+                ].map(cell => `"${String(cell).replace(/"/g, '""')}"`).join(',');
+                csv += row + "\n";
+            });
+            
+            const blob = new Blob(["\uFEFF" + csv], {type: 'text/csv;charset=utf-8;'});
+            const link = document.createElement('a');
+            const url = URL.createObjectURL(blob);
+            link.href = url;
+            link.setAttribute('download', `participants_${new Date().toISOString().slice(0,19).replace(/:/g, '-')}.csv`);
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
+            URL.revokeObjectURL(url);
+            
+            showSuccess(`Скачано ${participants.length} записей`);
+        }
+
+        // Показать список участников на странице (админ-режим)
+        function showParticipantsList() {
+            const participants = getParticipants();
+            const container = document.getElementById('participantsList');
+            if (!container) return;
+            
+            if (participants.length === 0) {
+                container.innerHTML = '<div class="participant-item" style="color:#888;">Пока никого нет</div>';
+                return;
+            }
+            
+            let html = '';
+            participants.slice().reverse().forEach(p => {
+data-id
+DATA ID: One simple link you only need.
+Create a beautiful portfolio/resume within 1 minute. This simple short-named url gives you an easy-to-access rich page you can express yourself most. Try it now without commitment.
+16:54
+html += `<div class="participant-item">
+                    <strong>${p.fullName}</strong><br>
+                    <small style="color:#888;">${p.timestamp}</small>
+                </div>`;
+            });
+            container.innerHTML = html;
         }
 
         // Основной обработчик отправки
         form.addEventListener('submit', async (e) => {
             e.preventDefault();
 
-            // Валидация
             const lastName = document.getElementById('lastName').value.trim();
             const firstName = document.getElementById('firstName').value.trim();
             
@@ -284,7 +400,6 @@ method: 'POST',
             const middleName = document.getElementById('middleName').value.trim();
             const fullName = getFullName();
 
-            // Данные для отправки
             const participantData = {
                 lastName,
                 firstName,
@@ -295,75 +410,72 @@ method: 'POST',
             setLoading(true);
             
             try {
-                // Пробуем отправить
                 const result = await sendToGoogleSheets(participantData);
                 
-                // Если успешно (или локально сохранилось)
                 if (result !== false) {
                     showSuccess(`${fullName}, спасибо за регистрацию! Ждём вас.`);
                     form.reset();
                     
-                    // Доп. опция: автоматически показать всех участников (для организатора)
-                    // Если в URL есть параметр ?admin=1 — покажем кнопку выгрузки
+                    // Обновляем список в админ-режиме
                     if (window.location.search.includes('admin=1')) {
-                        setTimeout(() => {
-                            downloadParticipants();
-                        }, 1000);
+                        showParticipantsList();
                     }
                 } else {
                     showError('Не удалось сохранить. Попробуйте позже.');
                 }
             } catch (err) {
                 console.error(err);
-                showError('Ошибка соединения. Проверьте интернет или сообщите организатору.');
+                showError('Ошибка соединения. Проверьте интернет.');
             } finally {
                 setLoading(false);
             }
         });
 
-        // Функция для выгрузки данных (админская)
-        function downloadParticipants() {
-            const data = localStorage.getItem('participants');
-            if (!data) return;
-            
-            const participants = JSON.parse(data);
-            if (participants.length === 0) return;
-            
-            let csv = "ID,Фамилия,Имя,Отчество,Полное имя,Время регистрации\n";
-            participants.forEach(p => {
-                csv += `${p.id},${p.lastName},${p.firstName},${p.middleName || ''},${p.fullName},${p.timestamp}\n`;
-            });
-            
-            const blob = new Blob([csv], {type: 'text/csv;charset=utf-8;'});
-            const link = document.createElement('a');
-            const url = URL.createObjectURL(blob);
-            link.href = url;
-            link.setAttribute('download', 'participants.csv');
-            document.body.appendChild(link);
-            link.click();
-            document.body.removeChild(link);
-            URL.revokeObjectURL(url);
-        }
-
-        // Если админ заходит с параметром ?admin=1 — показать кнопку выгрузки
+        // ========== АДМИН-РЕЖИМ ==========
+        // Если в URL есть ?admin=1 — показываем панель управления
         if (window.location.search.includes('admin=1')) {
-            const adminBtn = document.createElement('button');
-            adminBtn.textContent = '📥 Скачать список участников (CSV)';
-16:07
-adminBtn.style.marginTop = '16px';
-            adminBtn.style.background = '#333';
-            adminBtn.onclick = downloadParticipants;
-            document.querySelector('.card').appendChild(adminBtn);
+            const card = document.querySelector('.card');
             
-            // Показать подсказку
-            const adminHint = document.createElement('div');
-            adminHint.className = 'info';
-            adminHint.style.marginTop = '12px';
-            adminHint.style.background = '#f0f0f0';
-            adminHint.style.padding = '8px';
-            adminHint.style.borderRadius = '12px';
-            adminHint.innerHTML = '🔐  Админ-режим: данные сохраняются локально в браузере. Чтобы очистить — откройте инструменты разработчика → Application → Local Storage';
-            document.querySelector('.card').appendChild(adminHint);
+            // Создаём панель администратора
+            const adminPanel = document.createElement('div');
+            adminPanel.className = 'admin-panel';
+            adminPanel.innerHTML = `
+                <div style="background:#667eea; color:white; padding:8px; border-radius:12px; text-align:center; margin-bottom:16px;">
+                    ⚙️  Админ-панель
+                </div>
+                <button id="adminDownloadBtn" class="admin-btn" style="background:#667eea !important;">📥 Скачать список (CSV)</button>
+                <button id="adminClearBtn" class="admin-btn clear-btn">🗑️  Очистить всех участников</button>
+                <div class="admin-hint">
+                    📊  Всего зарегистрировано: <strong id="totalCount">0</strong>
+                </div>
+                <div id="participantsList" class="participant-list"></div>
+            `;
+            card.appendChild(adminPanel);
+            
+            // Обновляем счётчик и список
+            function updateAdminPanel() {
+                const participants = getParticipants();
+                const totalSpan = document.getElementById('totalCount');
+                if (totalSpan) totalSpan.innerText = participants.length;
+                showParticipantsList();
+            }
+            
+            // Вешаем обработчики
+            document.getElementById('adminDownloadBtn').onclick = downloadParticipants;
+            document.getElementById('adminClearBtn').onclick = clearParticipants;
+            
+            // Заполняем данные
+            updateAdminPanel();
+            
+            // Добавляем подсказку о том, где хранятся данные
+            const storageHint = document.createElement('div');
+            storageHint.className = 'admin-hint';
+            storageHint.style.marginTop = '8px';
+            storageHint.style.fontSize = '11px';
+
+storageHint.style.color = '#666';
+            storageHint.innerHTML = '💾  Данные хранятся в вашем браузере. При очистке кэша они удалятся. Для постоянного хранения настройте Google Таблицы.';
+            card.appendChild(storageHint);
         }
     </script>
 </body>
