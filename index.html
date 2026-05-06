@@ -1,9 +1,9 @@
 <!DOCTYPE html>
 <html lang="ru">
-<head:
+<head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
-    <title:Бессмертный полк — р.п. Любинский</title>
+    <title>Бессмертный полк — р.п. Любинский</title>
     <style>
         * {
             margin: 0;
@@ -81,7 +81,6 @@
             text-align: center;
             position: relative;
             border: 1px solid rgba(212, 163, 115, 0.6);
-            transition: all 0.3s ease;
         }
 
         .card::before {
@@ -275,24 +274,6 @@
             text-shadow: 1px 1px 0 #4a0000;
         }
 
-        .reset-btn {
-            background: rgba(0,0,0,0.5);
-            color: #FFD700;
-            font-size: 12px;
-            padding: 6px 12px;
-            margin-top: 16px;
-            width: auto;
-            display: inline-block;
-            cursor: pointer;
-            border-radius: 30px;
-            border: 1px solid #c4a06a;
-            transition: 0.2s;
-        }
-        .reset-btn:hover {
-            background: rgba(0,0,0,0.7);
-            transform: scale(1.02);
-        }
-
         @media (max-width: 550px) {
             .card { padding: 30px 20px; }
             h1 { font-size: 26px; }
@@ -365,70 +346,21 @@
             🕯️ Нажимая кнопку, вы сохраняете память о герое<br>
             Данные будут внесены в соответствующий список Бессмертного полка р.п. Любинский
         </div>
-        <div class="reset-btn" id="resetStorageBtn">🗑️ Сбросить историю отправок (для тестов)</div>
     </div>
 
     <script>
-        // === ССЫЛКИ НА GOOGLE APPS SCRIPT ===
+        // === НОВЫЕ ССЫЛКИ НА GOOGLE APPS SCRIPT (ОБНОВЛЕНЫ) ===
         const SCRIPT_URLS = {
-            "Ветеран войны": "https://script.google.com/macros/s/AKfycbyiRU0gLCXwGPxptJw5P9Ldh0DkzzTu9kodOvmcJx8FLwpydIvD_XoyNxDU9fTf1euBqw/exec",
-            "Ветеран тыла": "https://script.google.com/macros/s/AKfycbzUOD5jecDcxZSrbmIcmUNw4xO9NvFywmMr6eCPi1DzZsBTcKDX9IBNtLO7nAv5xxzF5Q/exec",
-            "Ребёнок войны": "https://script.google.com/macros/s/AKfycbwuc4me6F2SWLfvNrHSe4KIlbKDni08ZMozDDvOqbcDTMc_y6aDiFQ6C5vBCVvwP73A/exec",
-            "СВО": "https://script.google.com/macros/s/AKfycbyCU0gPJQJ0-BynQg8GD-PF_LwouQnOHpJLxkXh1_RU/dev"
+            "Ветеран войны": "https://script.google.com/macros/s/AKfycbxSmQLAzFtXY3rSoE8WTSyKA8MQShFR0ndwCl8ni9YxIixNbbk4Imfqp93gz6ZNB8yBkg/exec",
+            "Ветеран тыла": "https://script.google.com/macros/s/AKfycbzqRuqCDuLO1NV0yfK9XYEA8m4MCfolq0T21MGDhI3T5uA-KoJcSrcaiQs3dT81MMmi9A/exec",
+            "Ребёнок войны": "https://script.google.com/macros/s/AKfycbzt0Fqic5mWtrbv0k_4EuNjLb6T59sij5O-l-dhPCdB1tedT-VP3MKH-INKkTnjZ0Ct/exec",
+            "СВО": "https://script.google.com/macros/s/AKfycbw8uh1ppkUSQ5paczoJdkHNLsHQx0vIs7cmAnQY3kf1MGVdkckgly5z4z6mt6MWuvXUaA/exec"
         };
 
-        // === РАБОТА С LOCALSTORAGE ДЛЯ ЗАПРЕТА ДУБЛЕЙ ===
-        const STORAGE_KEY = "ImmortalRegimentSentList";
-        
-        // Загружаем список уже отправленных записей (объект: ключ -> true)
-        let sentRecords = {};
-
-        function loadSentRecords() {
-            const stored = localStorage.getItem(STORAGE_KEY);
-            if (stored) {
-                try {
-                    sentRecords = JSON.parse(stored);
-                } catch(e) { sentRecords = {}; }
-            } else {
-                sentRecords = {};
-            }
-        }
-
-        function saveSentRecords() {
-            localStorage.setItem(STORAGE_KEY, JSON.stringify(sentRecords));
-        }
-
-        // Генерируем уникальный ключ для проверки дубля: категория + нормализованное ФИО
-        function getRecordKey(category, lastName, firstName, middleName) {
-            const normalize = (s) => s.trim().toLowerCase().replace(/\s+/g, ' ');
-            const full = `${normalize(lastName)} ${normalize(firstName)} ${normalize(middleName || '')}`.trim();
-            return `${category}|${full}`;
-        }
-
-        function isDuplicate(category, lastName, firstName, middleName) {
-            const key = getRecordKey(category, lastName, firstName, middleName);
-            return !!sentRecords[key];
-        }
-
-        function markAsSent(category, lastName, firstName, middleName) {
-            const key = getRecordKey(category, lastName, firstName, middleName);
-            sentRecords[key] = true;
-            saveSentRecords();
-        }
-
-        // Сброс истории (для отладки / тестов)
-        function resetHistory() {
-            sentRecords = {};
-            saveSentRecords();
-            showSuccess("История отправок очищена. Теперь можно повторно добавлять ранее введённых ветеранов.");
-        }
-
-        // === ОСТАЛЬНАЯ ЛОГИКА ФОРМЫ ===
         const form = document.getElementById('registerForm');
         const btn = document.getElementById('submitBtn');
         const successDiv = document.getElementById('successMessage');
         const errorDiv = document.getElementById('errorMessage');
-        const resetBtn = document.getElementById('resetStorageBtn');
 
         function showSuccess(text) {
             successDiv.style.display = 'block';
@@ -455,24 +387,24 @@
             return `${lastName} ${firstName}${middleName ? ' ' + middleName : ''}`;
         }
 
+        // Новая функция отправки с получением ответа от сервера (без no-cors)
         async function sendToGoogleSheets(url, data) {
             try {
-                console.log(`Отправка данных на URL: ${url}`, data);
-                await fetch(url, {
+                const response = await fetch(url, {
                     method: 'POST',
-                    mode: 'no-cors',
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify(data)
                 });
-                return true;
+                if (!response.ok) {
+                    throw new Error(`HTTP ошибка: ${response.status}`);
+                }
+                const result = await response.json();
+                return result; // ожидаем { result: "success" } или { result: "error", message: "..." }
             } catch (err) {
                 console.error('Ошибка отправки:', err);
-                return false;
+                throw err;
             }
         }
-
-        // Инициализация: загружаем историю при старте
-        loadSentRecords();
 
         form.addEventListener('submit', async (e) => {
             e.preventDefault();
@@ -488,12 +420,6 @@
             }
             if (!category) {
                 showError('Пожалуйста, выберите категорию участника');
-                return;
-            }
-
-            // Проверка на дублирование (в рамках выбранной категории)
-            if (isDuplicate(category, lastName, firstName, middleName)) {
-                showError(`⚠️ Ветеран "${getFullName()}" уже был добавлен в категорию "${category}". Повторная отправка невозможна.`);
                 return;
             }
 
@@ -515,25 +441,24 @@
 
             setLoading(true);
             try {
-                const success = await sendToGoogleSheets(scriptUrl, participantData);
-                if (success) {
-                    // Помечаем как отправленного, чтобы больше не дублировать
-                    markAsSent(category, lastName, firstName, middleName);
+                const response = await sendToGoogleSheets(scriptUrl, participantData);
+                if (response.result === "success") {
                     showSuccess(`✅ ${fullName} (${category}) добавлен в Бессмертный полк р.п. Любинский! Вечная память герою.`);
                     form.reset();
                 } else {
-                    showError('❌ Не удалось сохранить. Попробуйте позже.');
+                    // Если сервер вернул ошибку (например, дубликат)
+                    let errorMsg = response.message || "Не удалось сохранить данные.";
+                    if (errorMsg.includes("Duplicate") || errorMsg.toLowerCase().includes("дубликат")) {
+                        errorMsg = `⚠️ Ветеран "${fullName}" уже был добавлен в категорию "${category}". Повторная отправка невозможна.`;
+                    }
+                    showError(errorMsg);
                 }
             } catch (err) {
-                showError('Ошибка соединения. Проверьте интернет.');
+                console.error('Ошибка при отправке:', err);
+                showError('❌ Ошибка соединения с сервером. Проверьте интернет или попробуйте позже.');
             } finally {
                 setLoading(false);
             }
-        });
-
-        // Кнопка сброса истории
-        resetBtn.addEventListener('click', () => {
-            resetHistory();
         });
     </script>
 </body>
