@@ -2,7 +2,8 @@
 <html lang="ru">
 <head>
   <meta charset="UTF-8">
-  <title>Форма добавления</title>
+  <title>Форма</title>
+
   <style>
     body {
       font-family: Arial, sans-serif;
@@ -40,7 +41,6 @@
       color: white;
       border: none;
       cursor: pointer;
-      transition: 0.3s;
     }
 
     button:hover {
@@ -92,7 +92,7 @@ document.getElementById('form').addEventListener('submit', async function(e) {
   const middleName = document.getElementById('middleName').value.trim();
   const category = document.getElementById('category').value;
 
-  const fullName = `${lastName} ${firstName} ${middleName}`.trim();
+  const fullName = (lastName + ' ' + firstName + ' ' + middleName).trim();
 
   // ✅ Валидация
   if (!lastName || !firstName || !category) {
@@ -108,12 +108,12 @@ document.getElementById('form').addEventListener('submit', async function(e) {
     category
   };
 
-  // 🔗 URL таблиц
+  // 🔗 ТВОИ НОВЫЕ ССЫЛКИ
   const urlMap = {
-    'Ребёнок войны': 'https://script.google.com/macros/s/AKfycbxgyg865P5c7mtVeNSRZMvxPStSdAwNYK0EisMVX2k8YRcnTbOTJ79PI_sRpKqOM8GZ/exec',
-    'Ветеран войны': 'https://script.google.com/macros/s/AKfycbyI3-QrWBm9seT2ji1Zfe_u77t8H1ZT8T1dVWy9C7e324Y1M25_wr6DfxbKVkUYqAwolQ/exec',
-    'Ветеран тыла': 'https://script.google.com/macros/s/AKfycbxbtn_p8-9oHT7p1mU7sVpOxxp7WZr4lsRHAB78-r3D7kKp_CiHZisvvVZxxpdg1d3fHA/exec',
-    'СВО': 'https://script.google.com/macros/s/AKfycbwMnOZr5m0YAC8gsjTrWFc_udAeIS9VL8XpPSulj5LwXaP29-Iw3xughRv8lcyUjXFMzw/exec'
+    'СВО': 'https://script.google.com/macros/s/AKfycbwdc6zuaeJtxjRGPrEmAXlB_26x911RA1SpqPnl4IUlxElg5TvvPHzKT2jwoyVBUMZRFw/exec',
+    'Ветеран войны': 'https://script.google.com/macros/s/AKfycbwB5Xn8Jp5jnR78uXbT-aJGfPJsBmtC8_DjWolg8Z4QKfQA6RDDTjS5Vg3HlWYENGB-dw/exec',
+    'Ребёнок войны': 'https://script.google.com/macros/s/AKfycbxlG5nq_QtERuMa0FRzccoTXq6wHCR2vzOtHHtPtkalV7IOvYFH0XPtv8-6TyXP2biQ/exec',
+    'Ветеран тыла': 'https://script.google.com/macros/s/AKfycbxads4RRuNUkMDHYGyFJtErsMaQHeWpgRMbxkPFK_DgTzjeNi3SPqfQY8P1nKydc1xu-g/exec'
   };
 
   const url = urlMap[category];
@@ -130,14 +130,21 @@ document.getElementById('form').addEventListener('submit', async function(e) {
       method: 'POST',
       body: JSON.stringify(data),
       headers: {
-        'Content-Type': 'application/json'
+        'Content-Type': 'text/plain' // 🔥 важно для Apps Script
       }
     });
 
-    const result = await response.json();
+    const text = await response.text();
+
+    let result;
+    try {
+      result = JSON.parse(text);
+    } catch {
+      throw new Error('Сервер вернул не JSON');
+    }
 
     if (result.result === 'success') {
-      showStatus('Успешно отправлено ✅', 'success');
+      showStatus('Успешно отправлено', 'success');
       document.getElementById('form').reset();
     } else {
       showStatus(result.message || 'Ошибка', 'error');
@@ -145,7 +152,7 @@ document.getElementById('form').addEventListener('submit', async function(e) {
 
   } catch (error) {
     console.error(error);
-    showStatus('Ошибка соединения', 'error');
+    showStatus('Ошибка: ' + error.message, 'error');
   }
 });
 
