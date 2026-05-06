@@ -8,11 +8,12 @@
 <style>
 body {
   margin: 0;
-  font-family: Arial;
+  font-family: Arial, sans-serif;
   background: radial-gradient(circle at top, #2b0000, #000);
   color: white;
 }
 
+/* HEADER */
 .header {
   text-align: center;
   padding: 25px;
@@ -22,6 +23,7 @@ body {
 .header h1 {
   margin: 0;
   color: gold;
+  font-size: 28px;
 }
 
 .header p {
@@ -29,6 +31,7 @@ body {
   color: #ffd700;
 }
 
+/* LAYOUT */
 .container {
   display: flex;
   justify-content: center;
@@ -37,6 +40,7 @@ body {
   flex-wrap: wrap;
 }
 
+/* BOX */
 .form-box,
 .list-box {
   background: rgba(0,0,0,0.75);
@@ -46,6 +50,7 @@ body {
   border: 1px solid gold;
 }
 
+/* FORM */
 .form-grid {
   display: grid;
   gap: 10px;
@@ -73,12 +78,14 @@ button {
   font-size: 16px;
 }
 
+/* LIST */
 .list-item {
   border-bottom: 1px solid #333;
   padding: 8px 0;
   font-size: 14px;
 }
 
+/* SEARCH */
 .search {
   width: 100%;
   margin-bottom: 10px;
@@ -87,9 +94,9 @@ button {
   border: 1px solid #444;
   background: #111;
   color: white;
-  font-size: 16px;
 }
 
+/* TOAST */
 .toast {
   position: fixed;
   top: 20px;
@@ -107,6 +114,7 @@ button {
 .toast.error { border-left: 4px solid red; }
 .toast.success { border-left: 4px solid limegreen; }
 
+/* MOBILE */
 @media (max-width: 768px) {
   .container {
     flex-direction: column;
@@ -115,8 +123,7 @@ button {
 
   .form-box,
   .list-box {
-    width: 100%;
-    max-width: 420px;
+    width: 90%;
   }
 }
 </style>
@@ -167,21 +174,21 @@ button {
 
 <script>
 
-/* 🔗 НОВЫЕ ССЫЛКИ */
+/* 🔗 ССЫЛКИ */
 const urls = {
-  'Ветеран войны': 'https://script.google.com/macros/s/AKfycbwhPI9E6tKyr-3gxPZZbC6S6fnvg3FGK9Zorbr589wfwVBtrcMqV1kGlujpFXQMErwVbA/exec',
+  'Ветеран тыла': 'https://script.google.com/macros/s/AKfycbxiCADfCNxvQz612xphQB5cpnghC4Vo0mZMtxVOqcTFL7O6R568D80tAj82z5BMa5MX3Q/exec',
 
-  'Ветеран тыла': 'https://script.google.com/macros/s/AKfycbwOFKO-aj1pIuiwuJbVkOAepJhV0ZXWNbV36DNqybY9CI9F12BhCZcNUaQrfuDdqb97vw/exec',
+  'Ветеран войны': 'https://script.google.com/macros/s/AKfycbwtUwcIXP20wAgbtR7w4l639HuVf-SG1tIy1Pmf2yyuAzsrXhu5dzjPQ1ZS4AYeX2m3iQ/exec',
 
-  'Ребёнок войны': 'https://script.google.com/macros/s/AKfycbzK3I_jBFi34FKs-SyqbVfa9gMZT95snrbC-hZxtLLQcuuxuiRiGrTQ3qmebft6ioDM/exec',
+  'Ребёнок войны': 'https://script.google.com/macros/s/AKfycbyVEcezD2fpyNhD15odyrJ6JSpZlht1KYAdrkXqkPNSgbDLRQ5pwa2SFDvpaihxnsxa/exec',
 
-  'СВО': 'https://script.google.com/macros/s/AKfycbyBbhhblJdmj3J93RkJb_LnXRCBPh9EkKZ6O1nU7_ReAE_7vuxxdBkf8lTzsKO7gBOTnQ/exec'
+  'СВО': 'https://script.google.com/macros/s/AKfycbxZhaI_nUbVQN4Nfvm1KGZPrYoabDDmoP_gGBS2Vdlmb1M-2eQp1M_2uOx-f4-FOBDfMg/exec'
 };
 
 let cache = [];
 let filtered = [];
 
-/* 🚀 ЗАГРУЗКА */
+/* LOAD */
 async function loadList() {
   try {
     const url = urls['Ветеран войны'];
@@ -200,11 +207,11 @@ async function loadList() {
       render();
     }
   } catch (e) {
-    console.log(e);
+    toast('Ошибка загрузки', 'error');
   }
 }
 
-/* 🚀 ОТПРАВКА */
+/* SUBMIT */
 async function submitForm() {
   const lastName = document.getElementById('lastName').value.trim();
   const firstName = document.getElementById('firstName').value.trim();
@@ -241,7 +248,7 @@ async function submitForm() {
       filtered = cache;
       render();
     } else {
-      toast(result.message || 'Ошибка', 'error');
+      toast(result.message, 'error');
     }
 
   } catch (e) {
@@ -249,7 +256,7 @@ async function submitForm() {
   }
 }
 
-/* 📜 список */
+/* RENDER */
 function render() {
   const list = document.getElementById('list');
   list.innerHTML = '';
@@ -262,7 +269,7 @@ function render() {
   });
 }
 
-/* 🔍 поиск */
+/* SEARCH */
 function filterList(val) {
   const q = val.toLowerCase();
   filtered = cache.filter(x =>
@@ -271,7 +278,7 @@ function filterList(val) {
   render();
 }
 
-/* 🔔 уведомления */
+/* TOAST */
 function toast(msg, type) {
   const t = document.getElementById('toast');
   t.textContent = msg;
@@ -280,7 +287,7 @@ function toast(msg, type) {
   setTimeout(() => t.className = 'toast', 2500);
 }
 
-/* старт */
+/* START */
 loadList();
 
 </script>
