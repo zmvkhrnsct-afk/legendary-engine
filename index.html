@@ -13,7 +13,7 @@ body {
   color: white;
 }
 
-/* 🔥 HEADER */
+/* HEADER */
 .header {
   text-align: center;
   padding: 25px;
@@ -23,7 +23,6 @@ body {
 .header h1 {
   margin: 0;
   color: gold;
-  font-size: 26px;
 }
 
 .header p {
@@ -31,7 +30,7 @@ body {
   color: #ffd700;
 }
 
-/* 📦 LAYOUT */
+/* LAYOUT */
 .container {
   display: flex;
   justify-content: center;
@@ -40,7 +39,7 @@ body {
   flex-wrap: wrap;
 }
 
-/* 🧱 BOXES */
+/* BOX */
 .form-box,
 .list-box {
   background: rgba(0,0,0,0.75);
@@ -50,14 +49,12 @@ body {
   border: 1px solid gold;
 }
 
-/* 📐 FORM GRID */
+/* FORM */
 .form-grid {
   display: grid;
-  grid-template-columns: 1fr;
   gap: 10px;
 }
 
-/* ✍️ INPUTS */
 input, select {
   width: 100%;
   box-sizing: border-box;
@@ -80,14 +77,14 @@ button {
   font-size: 16px;
 }
 
-/* 📜 LIST */
+/* LIST */
 .list-item {
   border-bottom: 1px solid #333;
   padding: 8px 0;
   font-size: 14px;
 }
 
-/* 🔍 SEARCH */
+/* SEARCH */
 .search {
   width: 100%;
   margin-bottom: 10px;
@@ -99,7 +96,7 @@ button {
   font-size: 16px;
 }
 
-/* 🔔 TOAST */
+/* TOAST */
 .toast {
   position: fixed;
   top: 20px;
@@ -110,15 +107,15 @@ button {
   border-left: 4px solid gold;
   opacity: 0;
   transition: 0.3s;
-  max-width: 80%;
   z-index: 999;
+  max-width: 80%;
 }
 
 .toast.show { opacity: 1; }
 .toast.error { border-left: 4px solid red; }
 .toast.success { border-left: 4px solid limegreen; }
 
-/* 📱 MOBILE */
+/* MOBILE */
 @media (max-width: 768px) {
   .container {
     flex-direction: column;
@@ -129,11 +126,7 @@ button {
   .form-box,
   .list-box {
     width: 100%;
-    max-width: 400px;
-  }
-
-  .header h1 {
-    font-size: 22px;
+    max-width: 420px;
   }
 }
 </style>
@@ -148,7 +141,7 @@ button {
 
 <div class="container">
 
-  <!-- 📝 FORM -->
+  <!-- FORM -->
   <div class="form-box">
     <h3>Добавить ветерана</h3>
 
@@ -169,7 +162,7 @@ button {
     </div>
   </div>
 
-  <!-- 📜 LIST -->
+  <!-- LIST -->
   <div class="list-box">
     <h3>Список участников</h3>
 
@@ -184,18 +177,41 @@ button {
 
 <script>
 
-// 🔗 ссылки Apps Script
+/* 🔗 НОВЫЕ ССЫЛКИ */
 const urls = {
-  'СВО': 'https://script.google.com/macros/s/AKfycbwdc6zuaeJtxjRGPrEmAXlB_26x911RA1SpqPnl4IUlxElg5TvvPHzKT2jwoyVBUMZRFw/exec',
-  'Ветеран войны': 'https://script.google.com/macros/s/AKfycbwB5Xn8Jp5jnR78uXbT-aJGfPJsBmtC8_DjWolg8Z4QKfQA6RDDTjS5Vg3HlWYENGB-dw/exec',
-  'Ребёнок войны': 'https://script.google.com/macros/s/AKfycbxlG5nq_QtERuMa0FRzccoTXq6wHCR2vzOtHHtPtkalV7IOvYFH0XPtv8-6TyXP2biQ/exec',
-  'Ветеран тыла': 'https://script.google.com/macros/s/AKfycbxads4RRuNUkMDHYGyFJtErsMaQHeWpgRMbxkPFK_DgTzjeNi3SPqfQY8P1nKydc1xu-g/exec'
+  'Ветеран тыла': 'https://script.google.com/macros/s/AKfycbzgWXtqTVBcM1-fm5feqXvkYOosKziyRdeXGIN72foJW5K-kFhFGdLZlmnDIQUrrYI1/exec',
+  'Ветеран войны': 'https://script.google.com/macros/s/AKfycbz-nCPq5sWdhurz9FT6psJIly6ek-BDmAWu9m3J_vhTyL8wRx9h2q5HZKwphycoBa098A/exec',
+  'Ребёнок войны': 'https://script.google.com/macros/s/AKfycbwP8jm3BMnvifJbO_-2OWMzmkecHwZxCs6yDZVX6rZZi1EdXLzLNBciFk-T-lDkDOsR/exec',
+  'СВО': 'https://script.google.com/macros/s/AKfycbzetm-aYifkOyR0MJ4jHBJB86-KTQm_y8VjRw7o5w8-SOsDxtEKbSemx_V7dMY32qyxbw/exec'
 };
 
 let cache = [];
 let filtered = [];
 
-/* 🚀 отправка */
+/* 🚀 ЗАГРУЗКА */
+async function loadList() {
+  try {
+    const url = urls['Ветеран войны'];
+
+    const res = await fetch(url, {
+      method: 'POST',
+      body: JSON.stringify({ action: 'get' }),
+      headers: { 'Content-Type': 'text/plain' }
+    });
+
+    const data = await res.json();
+
+    if (data.list) {
+      cache = data.list;
+      filtered = cache;
+      render();
+    }
+  } catch (e) {
+    console.log('load error', e);
+  }
+}
+
+/* 🚀 ОТПРАВКА */
 async function submitForm() {
   const lastName = document.getElementById('lastName').value.trim();
   const firstName = document.getElementById('firstName').value.trim();
@@ -240,7 +256,7 @@ async function submitForm() {
   }
 }
 
-/* 📜 render */
+/* 📜 RENDER */
 function render() {
   const list = document.getElementById('list');
   list.innerHTML = '';
@@ -253,14 +269,14 @@ function render() {
   });
 }
 
-/* 🔍 filter */
+/* 🔍 FILTER */
 function filterList(val) {
   const q = val.toLowerCase();
   filtered = cache.filter(x => x.fullName.toLowerCase().includes(q));
   render();
 }
 
-/* 🔔 toast */
+/* 🔔 TOAST */
 function toast(msg, type) {
   const t = document.getElementById('toast');
   t.textContent = msg;
@@ -270,7 +286,7 @@ function toast(msg, type) {
 }
 
 /* старт */
-render();
+loadList();
 
 </script>
 
