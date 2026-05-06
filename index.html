@@ -22,7 +22,6 @@
             overflow-x: hidden;
         }
 
-        /* Фон видео */
         .video-background-wrapper {
             position: fixed;
             top: 0;
@@ -44,7 +43,6 @@
             border: none;
         }
 
-        /* Тёмное наложение */
         .overlay {
             position: fixed;
             top: 0;
@@ -55,7 +53,6 @@
             z-index: -1;
         }
 
-        /* Георгиевские ленты */
         .ribbon-top, .ribbon-bottom {
             position: fixed;
             left: 0;
@@ -73,9 +70,8 @@
         .ribbon-top { top: 0; }
         .ribbon-bottom { bottom: 0; }
 
-        /* Карточка — более прозрачная */
         .card {
-            background: rgba(30, 15, 10, 0.65);  /* увеличена прозрачность */
+            background: rgba(30, 15, 10, 0.65);
             backdrop-filter: blur(12px);
             border-radius: 48px 48px 48px 24px;
             box-shadow: 0 30px 60px rgba(0,0,0,0.6), inset 0 1px 0 rgba(255,255,255,0.1);
@@ -85,10 +81,8 @@
             text-align: center;
             position: relative;
             border: 1px solid rgba(212, 163, 115, 0.6);
-            transition: all 0.3s ease;
         }
 
-        /* Звезда в углу */
         .card::before {
             content: "★";
             position: absolute;
@@ -161,10 +155,9 @@
             font-size: 15px;
             font-family: 'Segoe UI', 'Roboto', sans-serif;
             text-shadow: 1px 1px 0 #2a0a0a;
-            letter-spacing: 0.3px;
         }
 
-        /* Поля ввода и select с плавным увеличением при фокусе */
+        /* Общие стили для полей */
         input, select {
             width: 100%;
             padding: 14px 18px;
@@ -177,11 +170,13 @@
             outline: none;
         }
 
+        /* Эффект при фокусе: увеличиваем размер шрифта и отступы (работает и на телефонах) */
         input:focus, select:focus {
             border-color: #FFD700;
             box-shadow: 0 0 0 3px rgba(255,215,0,0.3);
             background: white;
-            transform: scale(1.02);   /* плавное увеличение */
+            padding: 16px 20px;
+            font-size: 18px;
         }
 
         select {
@@ -193,7 +188,6 @@
             cursor: pointer;
         }
 
-        /* Кнопка с плавным увеличением при наведении */
         button {
             width: 100%;
             background: linear-gradient(135deg, #8B0000 0%, #c41e3a 100%);
@@ -282,18 +276,31 @@
             text-shadow: 1px 1px 0 #4a0000;
         }
 
+        /* Адаптация для телефонов: плавное увеличение через padding и font-size */
         @media (max-width: 550px) {
-            .card { padding: 30px 20px; }
-            h1 { font-size: 26px; }
-            .victory-symbol { font-size: 36px; }
-            button { font-size: 16px; padding: 14px; }
-            input:focus, select:focus { transform: scale(1.01); }
+            .card {
+                padding: 30px 20px;
+            }
+            h1 {
+                font-size: 26px;
+            }
+            .victory-symbol {
+                font-size: 36px;
+            }
+            button {
+                font-size: 16px;
+                padding: 14px;
+            }
+            /* На телефонах эффект тоже будет заметен, но без transform (чтобы не конфликтовать с зумом) */
+            input:focus, select:focus {
+                padding: 14px 20px;
+                font-size: 17px;
+            }
         }
     </style>
 </head>
 <body>
 
-    <!-- Фоновое видео (VK Video) -->
     <div class="video-background-wrapper">
         <iframe 
             src="https://vkvideo.ru/video_ext.php?oid=-34261602&id=456244048&hd=3&autoplay=1&loop=1&mute=1" 
@@ -355,7 +362,6 @@
     </div>
 
     <script>
-        // Ссылки на Google Apps Script (из ваших данных)
         const SCRIPT_URLS = {
             "Ветеран войны": "https://script.google.com/macros/s/AKfycbyiRU0gLCXwGPxptJw5P9Ldh0DkzzTu9kodOvmcJx8FLwpydIvD_XoyNxDU9fTf1euBqw/exec",
             "Ветеран тыла": "https://script.google.com/macros/s/AKfycbzUOD5jecDcxZSrbmIcmUNw4xO9NvFywmMr6eCPi1DzZsBTcKDX9IBNtLO7nAv5xxzF5Q/exec",
