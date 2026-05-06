@@ -39,7 +39,7 @@ body {
   flex-wrap: wrap;
 }
 
-/* BOX */
+/* BOXES */
 .form-box,
 .list-box {
   background: rgba(0,0,0,0.75);
@@ -177,21 +177,21 @@ button {
 
 <script>
 
-/* 🔗 ССЫЛКИ */
+/* 🔗 ОБНОВЛЁННЫЕ ССЫЛКИ */
 const urls = {
-  'Ребёнок войны': 'https://script.google.com/macros/s/AKfycbxAJrtny_2Sb5r_gC_yPTUxoxzaSGjqBS-oIy3hWvfY-4Sgtj_Qj0b2Um1yIPssXxoT/exec',
+  'Ветеран войны': 'https://script.google.com/macros/s/AKfycbzGgCN5I5QG_alFn7y837k5uGu5fTrjgKdKPo5cE4BUCbfoVV4ekSgXdm9z7qXV1IrbmA/exec',
 
-  'Ветеран войны': 'https://script.google.com/macros/s/AKfycbyOkNUA9fT8wZa7JB1Jie7qJyafBNiAFWO-0qAyp1cKlKNMn8aquW8xQW2qy5LeA0_y/exec',
+  'Ветеран тыла': 'https://script.google.com/macros/s/AKfycbxhVdEqFEpCAEVxgY6ZJr3_YqeXugIYfrPQszJmbPeS-Ggk23b73d0J-_JkHg6yyMQkVQ/exec',
 
-  'Ветеран тыла': 'https://script.google.com/macros/s/AKfycbzgFEdNDeNigNQK0CITdl037fNzV5Qf004He3eTYSbgSL5ww48fIMA4aQGRqwfMXisYWA/exec',
+  'Ребёнок войны': 'https://script.google.com/macros/s/AKfycbzTgKJ0qQcm8UYNLjl30x76NTzQpaSs5veY42XUua0QTFe8J31GFX6_GgI2tl9wOyL8/exec',
 
-  'СВО': 'https://script.google.com/macros/s/AKfycbwaghrPZ7kBzwFUu7s8WcknhvtHDZYMhtRAjFx4dCCvLvqOsCvmUrAyKpUvmAn1aLvYlg/exec'
+  'СВО': 'https://script.google.com/macros/s/AKfycby_GAi4eOPeTmILGBYcB4QYqBIeUIo9xVAO5EVPWKX_FsAbh9eC-9waqDruBGaoq_k8QQ/exec'
 };
 
 let cache = [];
 let filtered = [];
 
-/* 🚀 ЗАГРУЗКА */
+/* 🚀 загрузка */
 async function loadList() {
   try {
     const url = urls['Ветеран войны'];
@@ -214,7 +214,7 @@ async function loadList() {
   }
 }
 
-/* 🚀 ОТПРАВКА (ИСПРАВЛЕНО) */
+/* 🚀 отправка */
 async function submitForm() {
   const lastName = document.getElementById('lastName').value.trim();
   const firstName = document.getElementById('firstName').value.trim();
@@ -243,13 +243,13 @@ async function submitForm() {
       body: JSON.stringify(data)
     });
 
-    const text = await res.text();   // 🔥 ВАЖНО
+    const text = await res.text();
 
     let result;
     try {
       result = JSON.parse(text);
     } catch {
-      throw new Error('Сервер вернул не JSON: ' + text);
+      throw new Error('Сервер вернул не JSON');
     }
 
     if (result.result === 'success') {
@@ -267,7 +267,7 @@ async function submitForm() {
   }
 }
 
-/* 📜 LIST */
+/* 📜 список */
 function render() {
   const list = document.getElementById('list');
   list.innerHTML = '';
@@ -280,7 +280,7 @@ function render() {
   });
 }
 
-/* 🔍 FILTER */
+/* 🔍 поиск */
 function filterList(val) {
   const q = val.toLowerCase();
   filtered = cache.filter(x =>
@@ -289,7 +289,7 @@ function filterList(val) {
   render();
 }
 
-/* 🔔 TOAST */
+/* 🔔 уведомления */
 function toast(msg, type) {
   const t = document.getElementById('toast');
   t.textContent = msg;
@@ -298,7 +298,7 @@ function toast(msg, type) {
   setTimeout(() => t.className = 'toast', 2500);
 }
 
-/* START */
+/* старт */
 loadList();
 
 </script>
