@@ -8,12 +8,11 @@
 <style>
 body {
   margin: 0;
-  font-family: Arial, sans-serif;
+  font-family: Arial;
   background: radial-gradient(circle at top, #2b0000, #000);
   color: white;
 }
 
-/* HEADER */
 .header {
   text-align: center;
   padding: 25px;
@@ -23,7 +22,6 @@ body {
 .header h1 {
   margin: 0;
   color: gold;
-  font-size: 28px;
 }
 
 .header p {
@@ -31,7 +29,6 @@ body {
   color: #ffd700;
 }
 
-/* LAYOUT */
 .container {
   display: flex;
   justify-content: center;
@@ -40,7 +37,6 @@ body {
   flex-wrap: wrap;
 }
 
-/* BOX */
 .form-box,
 .list-box {
   background: rgba(0,0,0,0.75);
@@ -50,7 +46,6 @@ body {
   border: 1px solid gold;
 }
 
-/* FORM */
 .form-grid {
   display: grid;
   gap: 10px;
@@ -78,14 +73,12 @@ button {
   font-size: 16px;
 }
 
-/* LIST */
 .list-item {
   border-bottom: 1px solid #333;
   padding: 8px 0;
   font-size: 14px;
 }
 
-/* SEARCH */
 .search {
   width: 100%;
   margin-bottom: 10px;
@@ -96,7 +89,6 @@ button {
   color: white;
 }
 
-/* TOAST */
 .toast {
   position: fixed;
   top: 20px;
@@ -114,7 +106,6 @@ button {
 .toast.error { border-left: 4px solid red; }
 .toast.success { border-left: 4px solid limegreen; }
 
-/* MOBILE */
 @media (max-width: 768px) {
   .container {
     flex-direction: column;
@@ -138,7 +129,6 @@ button {
 
 <div class="container">
 
-  <!-- FORM -->
   <div class="form-box">
     <h3>Добавить ветерана</h3>
 
@@ -159,12 +149,9 @@ button {
     </div>
   </div>
 
-  <!-- LIST -->
   <div class="list-box">
     <h3>Список участников</h3>
-
     <input class="search" placeholder="Поиск..." oninput="filterList(this.value)">
-
     <div id="list"></div>
   </div>
 
@@ -174,21 +161,20 @@ button {
 
 <script>
 
-/* 🔗 ССЫЛКИ */
+/* 🔗 НОВЫЕ ССЫЛКИ */
 const urls = {
-  'Ветеран тыла': 'https://script.google.com/macros/s/AKfycbxiCADfCNxvQz612xphQB5cpnghC4Vo0mZMtxVOqcTFL7O6R568D80tAj82z5BMa5MX3Q/exec',
+  'Ветеран тыла': 'https://script.google.com/macros/s/AKfycbzxJk-Ag1gYFwGqrrkyLsomFgCxDQmJRCgecZDCSt31JDz9tWAU9q27lQhX0SB3wgjnHQ/exec',
 
-  'Ветеран войны': 'https://script.google.com/macros/s/AKfycbwtUwcIXP20wAgbtR7w4l639HuVf-SG1tIy1Pmf2yyuAzsrXhu5dzjPQ1ZS4AYeX2m3iQ/exec',
+  'Ветеран войны': 'https://script.google.com/macros/s/AKfycbynvWdXiaOlT-nr21eIGe9I_OVfPxSSVnzzGPx6dk0wnzMe1PWwI07Kf591WEligrPpCg/exec',
 
-  'Ребёнок войны': 'https://script.google.com/macros/s/AKfycbyVEcezD2fpyNhD15odyrJ6JSpZlht1KYAdrkXqkPNSgbDLRQ5pwa2SFDvpaihxnsxa/exec',
+  'Ребёнок войны': 'https://script.google.com/macros/s/AKfycbyz3mn_VlMKQtA3qOTBoXloBCeopbY3d6BgR_pl4LlY-IJIBFNMbJssTOV21WwZ-MR9/exec',
 
-  'СВО': 'https://script.google.com/macros/s/AKfycbxZhaI_nUbVQN4Nfvm1KGZPrYoabDDmoP_gGBS2Vdlmb1M-2eQp1M_2uOx-f4-FOBDfMg/exec'
+  'СВО': 'https://script.google.com/macros/s/AKfycby0082QP4JcQ7jmDNbWAa8HiDHKt-iZSpFTK_IOvw01JOvzLSFWMZCXaQbjKl0T-PIaLQ/exec'
 };
 
 let cache = [];
 let filtered = [];
 
-/* LOAD */
 async function loadList() {
   try {
     const url = urls['Ветеран войны'];
@@ -211,7 +197,6 @@ async function loadList() {
   }
 }
 
-/* SUBMIT */
 async function submitForm() {
   const lastName = document.getElementById('lastName').value.trim();
   const firstName = document.getElementById('firstName').value.trim();
@@ -243,7 +228,6 @@ async function submitForm() {
 
     if (result.result === 'success') {
       toast('Добавлено', 'success');
-
       cache.unshift(data);
       filtered = cache;
       render();
@@ -256,7 +240,6 @@ async function submitForm() {
   }
 }
 
-/* RENDER */
 function render() {
   const list = document.getElementById('list');
   list.innerHTML = '';
@@ -269,7 +252,6 @@ function render() {
   });
 }
 
-/* SEARCH */
 function filterList(val) {
   const q = val.toLowerCase();
   filtered = cache.filter(x =>
@@ -278,7 +260,6 @@ function filterList(val) {
   render();
 }
 
-/* TOAST */
 function toast(msg, type) {
   const t = document.getElementById('toast');
   t.textContent = msg;
@@ -287,7 +268,6 @@ function toast(msg, type) {
   setTimeout(() => t.className = 'toast', 2500);
 }
 
-/* START */
 loadList();
 
 </script>
