@@ -21,18 +21,27 @@
             position: relative;
             overflow-x: hidden;
         }
-        .video-background {
+        .video-background-wrapper {
             position: fixed;
             top: 0;
             left: 0;
             width: 100%;
             height: 100%;
-            object-fit: cover;
             z-index: -2;
-            filter: brightness(0.4) contrast(1.1);
+            overflow: hidden;
+        }
+        .video-background-wrapper iframe {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            width: 100%;
+            height: 100%;
+            transform: translate(-50%, -50%);
+            object-fit: cover;
+            pointer-events: none;
+            border: none;
         }
 
-        /* Тёмная наложение для лучшей читаемости */
         .overlay {
             position: fixed;
             top: 0;
@@ -43,10 +52,8 @@
             z-index: -1;
         }
 
-        /* Георгиевская лента (верхняя) */
-        .ribbon-top {
+        .ribbon-top, .ribbon-bottom {
             position: fixed;
-            top: 0;
             left: 0;
             right: 0;
             height: 12px;
@@ -55,29 +62,12 @@
                 #FF8C00 20%, #FF8C00 40%,
                 #000 40%, #000 60%,
                 #FF8C00 60%, #FF8C00 80%,
-                #000 80%, #000 100%
-            );
+                #000 80%, #000 100%);
             background-size: 50px 100%;
             z-index: 1000;
         }
-
-        /* Георгиевская лента (нижняя) */
-        .ribbon-bottom {
-            position: fixed;
-            bottom: 0;
-            left: 0;
-            right: 0;
-            height: 12px;
-            background: linear-gradient(90deg, 
-                #000 0%, #000 20%,
-                #FF8C00 20%, #FF8C00 40%,
-                #000 40%, #000 60%,
-                #FF8C00 60%, #FF8C00 80%,
-                #000 80%, #000 100%
-            );
-            background-size: 50px 100%;
-            z-index: 1000;
-        }
+        .ribbon-top { top: 0; }
+        .ribbon-bottom { bottom: 0; }
 
         .card {
             background: rgba(30, 15, 10, 0.85);
@@ -90,10 +80,8 @@
             text-align: center;
             position: relative;
             border: 1px solid #d4a373;
-            transition: all 0.3s;
         }
 
-        /* Звезда в углу карточки */
         .card::before {
             content: "★";
             position: absolute;
@@ -102,11 +90,8 @@
             font-size: 40px;
             color: #FFD700;
             opacity: 0.5;
-            font-weight: normal;
-            text-shadow: 0 0 5px #c41e3a;
         }
 
-        /* Орденская ленточка */
         .medal-ribbon {
             position: absolute;
             top: -8px;
@@ -115,19 +100,16 @@
             height: 25px;
             background: repeating-linear-gradient(45deg, 
                 #000 0px, #000 8px,
-                #FF8C00 8px, #FF8C00 16px
-            );
+                #FF8C00 8px, #FF8C00 16px);
             border-radius: 15px 15px 0 0;
         }
 
-        /* Название района */
         .district {
             font-size: 14px;
             letter-spacing: 3px;
             color: #FFD700;
             margin-bottom: 10px;
             text-transform: uppercase;
-            font-weight: normal;
             text-shadow: 1px 1px 0 #4a0000;
         }
 
@@ -135,8 +117,6 @@
             font-size: 34px;
             color: #FFD700;
             margin-bottom: 8px;
-            font-weight: bold;
-            letter-spacing: 3px;
             text-shadow: 2px 2px 0 #8B0000;
         }
 
@@ -155,7 +135,6 @@
             font-size: 48px;
             letter-spacing: 10px;
             color: #FFD700;
-            text-shadow: 0 0 5px #c41e3a;
         }
 
         .form-group {
@@ -169,23 +148,28 @@
             margin-bottom: 8px;
             color: #FFE4C4;
             font-size: 15px;
-            font-family: 'Segoe UI', sans-serif;
             text-shadow: 1px 1px 0 #2a0a0a;
         }
 
-        input {
+        input, select {
             width: 100%;
             padding: 14px 18px;
             font-size: 16px;
             border: 2px solid #c4a06a;
             border-radius: 40px;
-            transition: all 0.2s;
-            font-family: inherit;
             background: rgba(255, 245, 235, 0.95);
-            box-sizing: border-box;
+            font-family: inherit;
         }
 
-        input:focus {
+        select {
+            appearance: none;
+            background-image: url('data:image/svg+xml;charset=US-ASCII,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20width%3D%2224%22%20height%3D%2224%22%20viewBox%3D%220%200%2024%2024%22%20fill%3D%22%238B0000%22%3E%3Cpath%20d%3D%22M7%2010l5%205%205-5z%22%2F%3E%3C%2Fsvg%3E');
+            background-repeat: no-repeat;
+            background-position: right 18px center;
+            cursor: pointer;
+        }
+
+        input:focus, select:focus {
             outline: none;
             border-color: #FFD700;
             box-shadow: 0 0 0 3px rgba(255,215,0,0.3);
@@ -202,10 +186,8 @@
             font-weight: bold;
             border-radius: 50px;
             cursor: pointer;
-            transition: all 0.2s;
             margin-top: 16px;
             font-family: 'Georgia', serif;
-            letter-spacing: 1px;
             text-shadow: 1px 1px 0 #4a0000;
             box-shadow: 0 5px 15px rgba(0,0,0,0.5);
         }
@@ -213,11 +195,6 @@
         button:hover {
             transform: scale(1.02);
             background: linear-gradient(135deg, #a01020 0%, #d42a4a 100%);
-            box-shadow: 0 8px 20px rgba(0,0,0,0.6);
-        }
-
-        button:active {
-            transform: scale(0.98);
         }
 
         .success {
@@ -226,7 +203,6 @@
             padding: 14px;
             border-radius: 40px;
             margin-top: 24px;
-            font-weight: 500;
             display: none;
             border-left: 6px solid #FFD700;
         }
@@ -237,7 +213,6 @@
             padding: 14px;
             border-radius: 40px;
             margin-top: 16px;
-            font-size: 14px;
             display: none;
             border-left: 6px solid #FFD700;
         }
@@ -254,60 +229,39 @@
             vertical-align: middle;
         }
 
-        @keyframes spin {
-            to { transform: rotate(360deg); }
-        }
+        @keyframes spin { to { transform: rotate(360deg); } }
 
-        .info {
-            font-size: 11px;
+        .info, .poem-line {
+            font-size: 12px;
             color: #e0c8a8;
-            margin-top: 28px;
+            margin-top: 20px;
             padding-top: 16px;
             border-top: 1px dashed #c4a06a;
-            font-family: 'Segoe UI', sans-serif;
         }
-
-        .field-required {
-            color: #FFD700;
-            margin-left: 4px;
-        }
-
         .poem-line {
-            font-size: 13px;
-            color: #FFD700;
-            margin-top: 20px;
+            border-top: none;
             font-style: italic;
-            line-height: 1.4;
-            text-shadow: 1px 1px 0 #4a0000;
+            color: #FFD700;
         }
 
-        /* Адаптация для мобильных */
         @media (max-width: 550px) {
-            .card {
-                padding: 30px 20px;
-            }
-            h1 {
-                font-size: 26px;
-            }
-            .victory-symbol {
-                font-size: 36px;
-            }
-            button {
-                font-size: 16px;
-                padding: 14px;
-            }
+            .card { padding: 30px 20px; }
+            h1 { font-size: 26px; }
+            button { font-size: 16px; padding: 14px; }
         }
     </style>
 </head>
 <body>
 
-    <!-- ВИДЕОФОН: военная хроника, солдаты СССР -->
-    <video class="video-background" autoplay muted loop playsinline>
-        <source src="https://cdn.pixabay.com/video/2022/05/03/115612-706286688_large.mp4" type="video/mp4">
-        <!-- Запасной вариант: если первое видео недоступно, используем второе -->
-        <source src="https://cdn.pixabay.com/video/2021/05/08/72960-542480536_large.mp4" type="video/mp4">
-        Ваш браузер не поддерживает видеофон.
-    </video>
+    <!-- Фоновое видео (VK Video) -->
+    <div class="video-background-wrapper">
+        <iframe 
+            src="https://vkvideo.ru/video_ext.php?oid=-34261602&id=456244048&hd=3&autoplay=1&loop=1&mute=1" 
+            frameborder="0" 
+            allow="autoplay; encrypted-media; fullscreen; picture-in-picture; loop" 
+            allowfullscreen>
+        </iframe>
+    </div>
     <div class="overlay"></div>
 
     <div class="ribbon-top"></div>
@@ -316,13 +270,22 @@
     <div class="card">
         <div class="medal-ribbon"></div>
         <div class="district">р.п. ЛЮБИНСКИЙ</div>
-        <div class="victory-symbol">
-            <span>★</span> <span style="color:#FFD700;">⚔️</span> <span>★</span>
-        </div>
+        <div class="victory-symbol">★ ⚔️ ★</div>
         <h1>БЕССМЕРТНЫЙ ПОЛК</h1>
         <div class="subtitle">Помним • Гордимся • Благодарим</div>
 
         <form id="registerForm">
+            <div class="form-group">
+                <label>Категория участника <span class="field-required">*</span></label>
+                <select id="category" required>
+                    <option value="" disabled selected>Выберите категорию</option>
+                    <option value="Ветеран войны">Ветеран войны</option>
+                    <option value="Ветеран труда">Ветеран труда</option>
+                    <option value="Ребёнок войны">Ребёнок войны</option>
+                    <option value="СВО">Участник СВО</option>
+                </select>
+            </div>
+
             <div class="form-group">
                 <label>Фамилия ветерана <span class="field-required">*</span></label>
                 <input type="text" id="lastName" placeholder="Иванов" autocomplete="off" required>
@@ -344,19 +307,22 @@
         <div id="successMessage" class="success"></div>
         <div id="errorMessage" class="error"></div>
         
-        <div class="poem-line">
-            «Никто не забыт, ничто не забыто»
-        </div>
+        <div class="poem-line">«Никто не забыт, ничто не забыто»</div>
         <div class="info">
             🕯️ Нажимая кнопку, вы сохраняете память о герое<br>
-            Данные будут внесены в список Бессмертного полка р.п. Любинский
+            Данные будут внесены в соответствующий список Бессмертного полка р.п. Любинский
         </div>
     </div>
 
     <script>
-        // === ВАША ССЫЛКА НА GOOGLE APPS SCRIPT ===
-        const GOOGLE_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbyiRU0gLCXwGPxptJw5P9Ldh0DkzzTu9kodOvmcJx8FLwpydIvD_XoyNxDU9fTf1euBqw/exec';
-        
+        // Ссылки на Google Apps Script для каждой категории
+        const SCRIPT_URLS = {
+            "Ветеран войны": "https://script.google.com/macros/s/AKfycbyiRU0gLCXwGPxptJw5P9Ldh0DkzzTu9kodOvmcJx8FLwpydIvD_XoyNxDU9fTf1euBqw/exec",
+            "Ветеран труда": "https://script.google.com/macros/s/AKfycbzUOD5jecDcxZSrbmIcmUNw4xO9NvFywmMr6eCPi1DzZsBTcKDX9IBNtLO7nAv5xxzF5Q/exec",
+            "Ребёнок войны": "https://script.google.com/macros/s/AKfycbwuc4me6F2SWLfvNrHSe4KIlbKDni08ZMozDDvOqbcDTMc_y6aDiFQ6C5vBCVvwP73A/exec",
+            "СВО": "https://script.google.com/macros/s/AKfycbxVJFLOdCK08k2GdDVLa_qf6BW0eBqxTXy9s98GtMB-b_LsjD4NxmmqcaZVx1BsvUSpBA/exec"
+        };
+
         const form = document.getElementById('registerForm');
         const btn = document.getElementById('submitBtn');
         const successDiv = document.getElementById('successMessage');
@@ -364,42 +330,33 @@
 
         function showSuccess(text) {
             successDiv.style.display = 'block';
-            successDiv.innerText = text || '✓ Спасибо! Ваш герой будет в строю Бессмертного полка. Вечная память!';
+            successDiv.innerText = text;
             errorDiv.style.display = 'none';
-            setTimeout(() => {
-                successDiv.style.display = 'none';
-            }, 6000);
+            setTimeout(() => successDiv.style.display = 'none', 6000);
         }
 
         function showError(text) {
             errorDiv.style.display = 'block';
-            errorDiv.innerText = text || '❌ Ошибка. Попробуйте ещё раз или обратитесь к организатору.';
+            errorDiv.innerText = text;
             successDiv.style.display = 'none';
         }
 
         function setLoading(isLoading) {
-            if (isLoading) {
-                btn.disabled = true;
-                btn.innerHTML = '<span class="spinner"></span> Отправка...';
-            } else {
-                btn.disabled = false;
-                btn.innerHTML = '⭐ ВСТАТЬ В БЕССМЕРТНЫЙ ПОЛК ⭐';
-            }
+            btn.disabled = isLoading;
+            btn.innerHTML = isLoading ? '<span class="spinner"></span> Отправка...' : '⭐ ВСТАТЬ В БЕССМЕРТНЫЙ ПОЛК ⭐';
         }
 
         function getFullName() {
             const lastName = document.getElementById('lastName').value.trim();
             const firstName = document.getElementById('firstName').value.trim();
             const middleName = document.getElementById('middleName').value.trim();
-            
-            let fullName = `${lastName} ${firstName}`;
-            if (middleName) fullName += ` ${middleName}`;
-            return fullName;
+            return `${lastName} ${firstName}${middleName ? ' ' + middleName : ''}`;
         }
 
-        async function sendToGoogleSheets(data) {
+        async function sendToGoogleSheets(url, data) {
             try {
-                await fetch(GOOGLE_SCRIPT_URL, {
+                // Используем POST с mode: 'no-cors' (как было в исходном коде)
+                await fetch(url, {
                     method: 'POST',
                     mode: 'no-cors',
                     headers: { 'Content-Type': 'application/json' },
@@ -407,7 +364,7 @@
                 });
                 return true;
             } catch (err) {
-                console.error('Ошибка:', err);
+                console.error('Ошибка отправки:', err);
                 return false;
             }
         }
@@ -417,9 +374,20 @@
 
             const lastName = document.getElementById('lastName').value.trim();
             const firstName = document.getElementById('firstName').value.trim();
-            
+            const category = document.getElementById('category').value;
+
             if (!lastName || !firstName) {
                 showError('Пожалуйста, заполните фамилию и имя ветерана');
+                return;
+            }
+            if (!category) {
+                showError('Пожалуйста, выберите категорию участника');
+                return;
+            }
+
+            const scriptUrl = SCRIPT_URLS[category];
+            if (!scriptUrl) {
+                showError('Для выбранной категории не настроена отправка. Свяжитесь с администратором.');
                 return;
             }
 
@@ -427,25 +395,24 @@
             const fullName = getFullName();
 
             const participantData = {
+                category: category,
                 lastName: lastName,
                 firstName: firstName,
                 middleName: middleName,
-                fullName: fullName
+                fullName: fullName,
+                timestamp: new Date().toISOString()
             };
 
             setLoading(true);
-            
             try {
-                const success = await sendToGoogleSheets(participantData);
-                
+                const success = await sendToGoogleSheets(scriptUrl, participantData);
                 if (success) {
-                    showSuccess(`${fullName} добавлен в Бессмертный полк р.п. Любинский! Вечная память герою.`);
+                    showSuccess(`✅ ${fullName} (${category}) добавлен в Бессмертный полк р.п. Любинский! Вечная память герою.`);
                     form.reset();
                 } else {
-                    showError('Не удалось сохранить. Попробуйте позже.');
+                    showError('❌ Не удалось сохранить. Попробуйте позже.');
                 }
             } catch (err) {
-                console.error('Ошибка:', err);
                 showError('Ошибка соединения. Проверьте интернет.');
             } finally {
                 setLoading(false);
