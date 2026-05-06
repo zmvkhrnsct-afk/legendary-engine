@@ -349,12 +349,12 @@
     </div>
 
     <script>
-        // === НОВЫЕ ССЫЛКИ НА GOOGLE APPS SCRIPT (ОБНОВЛЕНЫ) ===
+        // === НОВЫЕ ССЫЛКИ (ПОСЛЕ ПЕРЕПУБЛИКАЦИИ) ===
         const SCRIPT_URLS = {
-            "Ветеран войны": "https://script.google.com/macros/s/AKfycbxSmQLAzFtXY3rSoE8WTSyKA8MQShFR0ndwCl8ni9YxIixNbbk4Imfqp93gz6ZNB8yBkg/exec",
-            "Ветеран тыла": "https://script.google.com/macros/s/AKfycbzqRuqCDuLO1NV0yfK9XYEA8m4MCfolq0T21MGDhI3T5uA-KoJcSrcaiQs3dT81MMmi9A/exec",
-            "Ребёнок войны": "https://script.google.com/macros/s/AKfycbzt0Fqic5mWtrbv0k_4EuNjLb6T59sij5O-l-dhPCdB1tedT-VP3MKH-INKkTnjZ0Ct/exec",
-            "СВО": "https://script.google.com/macros/s/AKfycbw8uh1ppkUSQ5paczoJdkHNLsHQx0vIs7cmAnQY3kf1MGVdkckgly5z4z6mt6MWuvXUaA/exec"
+            "Ветеран войны": "https://script.google.com/macros/s/AKfycbyclrlCRaScQPolbW22bR2d3XSk4QTYjQ8YzfcwLi1Q0LsraKuRezilatASS3rjamBO-w/exec",
+            "Ветеран тыла": "https://script.google.com/macros/s/AKfycbxz5GLNqMI7TNXkb8PrtofdnEhst5F6dkLpcDAo7Lv72-XuvI039OiQMQ8FQ_q5-8dN3A/exec",
+            "Ребёнок войны": "https://script.google.com/macros/s/AKfycbwG7Os9ww0itcl8Btyac658b0lJGHrZVI2YFFpfgXjaAwTZ_wFqztbNnRuc2FSKi2gK/exec",
+            "СВО": "https://script.google.com/macros/s/AKfycbyUZxU_ldyGlusxQPpnQIQ_TK2f-ehEVNA_bcNULyZ2_yvLrqCrSGxaEFVFy3vMM6vNZw/exec"
         };
 
         const form = document.getElementById('registerForm');
@@ -387,23 +387,14 @@
             return `${lastName} ${firstName}${middleName ? ' ' + middleName : ''}`;
         }
 
-        // Новая функция отправки с получением ответа от сервера (без no-cors)
         async function sendToGoogleSheets(url, data) {
-            try {
-                const response = await fetch(url, {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify(data)
-                });
-                if (!response.ok) {
-                    throw new Error(`HTTP ошибка: ${response.status}`);
-                }
-                const result = await response.json();
-                return result; // ожидаем { result: "success" } или { result: "error", message: "..." }
-            } catch (err) {
-                console.error('Ошибка отправки:', err);
-                throw err;
-            }
+            const response = await fetch(url, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(data)
+            });
+            if (!response.ok) throw new Error(`HTTP ${response.status}`);
+            return await response.json();
         }
 
         form.addEventListener('submit', async (e) => {
@@ -441,20 +432,17 @@
 
             setLoading(true);
             try {
-                const response = await sendToGoogleSheets(scriptUrl, participantData);
-                if (response.result === "success") {
+                const result = await sendToGoogleSheets(scriptUrl, participantData);
+                if (result.result === "success") {
                     showSuccess(`✅ ${fullName} (${category}) добавлен в Бессмертный полк р.п. Любинский! Вечная память герою.`);
                     form.reset();
+                } else if (result.result === "error" && result.message === "Duplicate entry") {
+                    showError(`⚠️ Ветеран "${fullName}" уже был добавлен в категорию "${category}". Повторная отправка невозможна.`);
                 } else {
-                    // Если сервер вернул ошибку (например, дубликат)
-                    let errorMsg = response.message || "Не удалось сохранить данные.";
-                    if (errorMsg.includes("Duplicate") || errorMsg.toLowerCase().includes("дубликат")) {
-                        errorMsg = `⚠️ Ветеран "${fullName}" уже был добавлен в категорию "${category}". Повторная отправка невозможна.`;
-                    }
-                    showError(errorMsg);
+                    showError(`❌ Ошибка сервера: ${result.message || 'Неизвестная ошибка'}`);
                 }
             } catch (err) {
-                console.error('Ошибка при отправке:', err);
+                console.error('Ошибка:', err);
                 showError('❌ Ошибка соединения с сервером. Проверьте интернет или попробуйте позже.');
             } finally {
                 setLoading(false);
