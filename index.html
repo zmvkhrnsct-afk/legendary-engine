@@ -1,3 +1,4 @@
+html
 <!DOCTYPE html>
 <html lang="ru">
 <head>
@@ -5,14 +6,9 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
     <title>Бессмертный полк — р.п. Любинский</title>
     <style>
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
-
+        * { margin: 0; padding: 0; box-sizing: border-box; }
         body {
-            font-family: 'Segoe UI', 'Roboto', 'Georgia', 'Times New Roman', serif;
+            font-family: 'Segoe UI', 'Roboto', 'Georgia', serif;
             min-height: 100vh;
             display: flex;
             justify-content: center;
@@ -21,7 +17,6 @@
             position: relative;
             overflow-x: hidden;
         }
-
         .video-background-wrapper {
             position: fixed;
             top: 0;
@@ -42,7 +37,6 @@
             pointer-events: none;
             border: none;
         }
-
         .overlay {
             position: fixed;
             top: 0;
@@ -52,24 +46,17 @@
             background: rgba(0, 0, 0, 0.55);
             z-index: -1;
         }
-
         .ribbon-top, .ribbon-bottom {
             position: fixed;
             left: 0;
             right: 0;
             height: 12px;
-            background: linear-gradient(90deg, 
-                #000 0%, #000 20%,
-                #FF8C00 20%, #FF8C00 40%,
-                #000 40%, #000 60%,
-                #FF8C00 60%, #FF8C00 80%,
-                #000 80%, #000 100%);
+            background: linear-gradient(90deg, #000 0%, #000 20%, #FF8C00 20%, #FF8C00 40%, #000 40%, #000 60%, #FF8C00 60%, #FF8C00 80%, #000 80%, #000 100%);
             background-size: 50px 100%;
             z-index: 1000;
         }
         .ribbon-top { top: 0; }
         .ribbon-bottom { bottom: 0; }
-
         .card {
             background: rgba(30, 15, 10, 0.65);
             backdrop-filter: blur(12px);
@@ -82,82 +69,18 @@
             position: relative;
             border: 1px solid rgba(212, 163, 115, 0.6);
         }
-
-        .card::before {
-            content: "★";
-            position: absolute;
-            top: 20px;
-            right: 25px;
-            font-size: 40px;
-            color: #FFD700;
-            opacity: 0.5;
-        }
-
+        .card::before { content: "★"; position: absolute; top: 20px; right: 25px; font-size: 40px; color: #FFD700; opacity: 0.5; }
         .medal-ribbon {
-            position: absolute;
-            top: -8px;
-            left: 30px;
-            width: 80px;
-            height: 25px;
-            background: repeating-linear-gradient(45deg, 
-                #000 0px, #000 8px,
-                #FF8C00 8px, #FF8C00 16px);
+            position: absolute; top: -8px; left: 30px; width: 80px; height: 25px;
+            background: repeating-linear-gradient(45deg, #000 0px, #000 8px, #FF8C00 8px, #FF8C00 16px);
             border-radius: 15px 15px 0 0;
         }
-
-        .district {
-            font-size: 14px;
-            letter-spacing: 3px;
-            color: #FFD700;
-            margin-bottom: 10px;
-            text-transform: uppercase;
-            font-weight: 500;
-            text-shadow: 1px 1px 0 #4a0000;
-        }
-
-        h1 {
-            font-size: 34px;
-            color: #FFD700;
-            margin-bottom: 8px;
-            font-weight: 700;
-            letter-spacing: 2px;
-            text-shadow: 2px 2px 0 #8B0000;
-        }
-
-        .subtitle {
-            color: #f0c0a0;
-            font-size: 16px;
-            margin-bottom: 20px;
-            border-bottom: 2px solid #c41e3a;
-            padding-bottom: 12px;
-            display: inline-block;
-            font-style: italic;
-        }
-
-        .victory-symbol {
-            margin: 10px 0 20px;
-            font-size: 48px;
-            letter-spacing: 10px;
-            color: #FFD700;
-            text-shadow: 0 0 5px #c41e3a;
-        }
-
-        .form-group {
-            margin-bottom: 24px;
-            text-align: left;
-        }
-
-        label {
-            display: block;
-            font-weight: 600;
-            margin-bottom: 8px;
-            color: #FFE4C4;
-            font-size: 15px;
-            font-family: 'Segoe UI', 'Roboto', sans-serif;
-            text-shadow: 1px 1px 0 #2a0a0a;
-        }
-
-        /* Общие стили для полей */
+        .district { font-size: 14px; letter-spacing: 3px; color: #FFD700; margin-bottom: 10px; text-transform: uppercase; font-weight: 500; text-shadow: 1px 1px 0 #4a0000; }
+        h1 { font-size: 34px; color: #FFD700; margin-bottom: 8px; font-weight: 700; letter-spacing: 2px; text-shadow: 2px 2px 0 #8B0000; }
+        .subtitle { color: #f0c0a0; font-size: 16px; margin-bottom: 20px; border-bottom: 2px solid #c41e3a; padding-bottom: 12px; display: inline-block; font-style: italic; }
+        .victory-symbol { margin: 10px 0 20px; font-size: 48px; letter-spacing: 10px; color: #FFD700; text-shadow: 0 0 5px #c41e3a; }
+        .form-group { margin-bottom: 24px; text-align: left; }
+        label { display: block; font-weight: 600; margin-bottom: 8px; color: #FFE4C4; font-size: 15px; font-family: 'Segoe UI', 'Roboto', sans-serif; text-shadow: 1px 1px 0 #2a0a0a; }
         input, select {
             width: 100%;
             padding: 14px 18px;
@@ -169,8 +92,6 @@
             transition: all 0.25s ease-in-out;
             outline: none;
         }
-
-        /* Эффект при фокусе: увеличиваем размер шрифта и отступы (работает и на телефонах) */
         input:focus, select:focus {
             border-color: #FFD700;
             box-shadow: 0 0 0 3px rgba(255,215,0,0.3);
@@ -178,7 +99,6 @@
             padding: 16px 20px;
             font-size: 18px;
         }
-
         select {
             appearance: none;
             background-image: url('data:image/svg+xml;charset=US-ASCII,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20width%3D%2224%22%20height%3D%2224%22%20viewBox%3D%220%200%2024%2024%22%20fill%3D%22%238B0000%22%3E%3Cpath%20d%3D%22M7%2010l5%205%205-5z%22%2F%3E%3C%2Fsvg%3E');
@@ -187,7 +107,6 @@
             background-size: 20px;
             cursor: pointer;
         }
-
         button {
             width: 100%;
             background: linear-gradient(135deg, #8B0000 0%, #c41e3a 100%);
@@ -205,122 +124,37 @@
             box-shadow: 0 5px 15px rgba(0,0,0,0.5);
             transition: transform 0.2s ease, background 0.2s ease;
         }
-
-        button:hover {
-            transform: scale(1.02);
-            background: linear-gradient(135deg, #a01020 0%, #d42a4a 100%);
-        }
-
-        button:active {
-            transform: scale(0.98);
-        }
-
-        .success {
-            background: #1e4a2f;
-            color: #d4ffc4;
-            padding: 14px;
-            border-radius: 40px;
-            margin-top: 24px;
-            font-weight: 500;
-            display: none;
-            border-left: 6px solid #FFD700;
-        }
-
-        .error {
-            background: #5a1a1a;
-            color: #ffb3b3;
-            padding: 14px;
-            border-radius: 40px;
-            margin-top: 16px;
-            font-size: 14px;
-            display: none;
-            border-left: 6px solid #FFD700;
-        }
-
-        .spinner {
-            display: inline-block;
-            width: 20px;
-            height: 20px;
-            border: 2px solid rgba(255,215,0,0.3);
-            border-radius: 50%;
-            border-top-color: #FFD700;
-            animation: spin 0.6s linear infinite;
-            margin-right: 8px;
-            vertical-align: middle;
-        }
-
-        @keyframes spin {
-            to { transform: rotate(360deg); }
-        }
-
-        .info {
-            font-size: 11px;
-            color: #e0c8a8;
-            margin-top: 28px;
-            padding-top: 16px;
-            border-top: 1px dashed #c4a06a;
-            font-family: 'Segoe UI', sans-serif;
-        }
-
-        .field-required {
-            color: #FFD700;
-            margin-left: 4px;
-        }
-
-        .poem-line {
-            font-size: 13px;
-            color: #FFD700;
-            margin-top: 20px;
-            font-style: italic;
-            line-height: 1.4;
-            text-shadow: 1px 1px 0 #4a0000;
-        }
-
-        /* Адаптация для телефонов: плавное увеличение через padding и font-size */
+        button:hover { transform: scale(1.02); background: linear-gradient(135deg, #a01020 0%, #d42a4a 100%); }
+        button:active { transform: scale(0.98); }
+        .success { background: #1e4a2f; color: #d4ffc4; padding: 14px; border-radius: 40px; margin-top: 24px; display: none; border-left: 6px solid #FFD700; }
+        .error { background: #5a1a1a; color: #ffb3b3; padding: 14px; border-radius: 40px; margin-top: 16px; display: none; border-left: 6px solid #FFD700; }
+        .spinner { display: inline-block; width: 20px; height: 20px; border: 2px solid rgba(255,215,0,0.3); border-radius: 50%; border-top-color: #FFD700; animation: spin 0.6s linear infinite; margin-right: 8px; vertical-align: middle; }
+        @keyframes spin { to { transform: rotate(360deg); } }
+        .info { font-size: 11px; color: #e0c8a8; margin-top: 28px; padding-top: 16px; border-top: 1px dashed #c4a06a; font-family: 'Segoe UI', sans-serif; }
+        .field-required { color: #FFD700; margin-left: 4px; }
+        .poem-line { font-size: 13px; color: #FFD700; margin-top: 20px; font-style: italic; line-height: 1.4; text-shadow: 1px 1px 0 #4a0000; }
         @media (max-width: 550px) {
-            .card {
-                padding: 30px 20px;
-            }
-            h1 {
-                font-size: 26px;
-            }
-            .victory-symbol {
-                font-size: 36px;
-            }
-            button {
-                font-size: 16px;
-                padding: 14px;
-            }
-            /* На телефонах эффект тоже будет заметен, но без transform (чтобы не конфликтовать с зумом) */
-            input:focus, select:focus {
-                padding: 14px 20px;
-                font-size: 17px;
-            }
+            .card { padding: 30px 20px; }
+            h1 { font-size: 26px; }
+            .victory-symbol { font-size: 36px; }
+            button { font-size: 16px; padding: 14px; }
+            input:focus, select:focus { padding: 14px 20px; font-size: 17px; }
         }
     </style>
 </head>
 <body>
-
     <div class="video-background-wrapper">
-        <iframe 
-            src="https://vkvideo.ru/video_ext.php?oid=-34261602&id=456244048&hd=3&autoplay=1&loop=1&mute=1" 
-            frameborder="0" 
-            allow="autoplay; encrypted-media; fullscreen; picture-in-picture; loop" 
-            allowfullscreen>
-        </iframe>
+        <iframe src="https://vkvideo.ru/video_ext.php?oid=-34261602&id=456244048&hd=3&autoplay=1&loop=1&mute=1" frameborder="0" allow="autoplay; encrypted-media; fullscreen; picture-in-picture; loop" allowfullscreen></iframe>
     </div>
     <div class="overlay"></div>
-
     <div class="ribbon-top"></div>
     <div class="ribbon-bottom"></div>
-
     <div class="card">
         <div class="medal-ribbon"></div>
         <div class="district">р.п. ЛЮБИНСКИЙ</div>
         <div class="victory-symbol">★ ⚔️ ★</div>
         <h1>БЕССМЕРТНЫЙ ПОЛК</h1>
         <div class="subtitle">Помним • Гордимся • Благодарим</div>
-
         <form id="registerForm">
             <div class="form-group">
                 <label>Категория участника <span class="field-required">*</span></label>
@@ -332,42 +166,37 @@
                     <option value="СВО">СВО</option>
                 </select>
             </div>
-
             <div class="form-group">
                 <label>Фамилия ветерана <span class="field-required">*</span></label>
                 <input type="text" id="lastName" placeholder="Иванов" autocomplete="off" required>
             </div>
-
             <div class="form-group">
                 <label>Имя ветерана <span class="field-required">*</span></label>
                 <input type="text" id="firstName" placeholder="Иван" autocomplete="off" required>
             </div>
-
             <div class="form-group">
                 <label>Отчество ветерана</label>
                 <input type="text" id="middleName" placeholder="Иванович" autocomplete="off">
             </div>
-
             <button type="submit" id="submitBtn">⭐ ВСТАТЬ В БЕССМЕРТНЫЙ ПОЛК ⭐</button>
         </form>
-
         <div id="successMessage" class="success"></div>
         <div id="errorMessage" class="error"></div>
-        
         <div class="poem-line">«Никто не забыт, ничто не забыто»</div>
-        <div class="info">
-            🕯️ Нажимая кнопку, вы сохраняете память о герое<br>
-            Данные будут внесены в соответствующий список Бессмертного полка р.п. Любинский
-        </div>
+        <div class="info">🕯️ Нажимая кнопку, вы сохраняете память о герое<br>Данные будут внесены в соответствующий список Бессмертного полка р.п. Любинский</div>
     </div>
 
     <script>
+        // ========== НАСТРОЙКА ССЫЛОК НА GOOGLE APPS SCRIPT ==========
+        // ВНИМАНИЕ: замените ссылки ниже на ПРАВИЛЬНЫЕ для каждой категории.
+        // Если не уверены, откройте каждую ссылку в браузере и проверьте, в какую таблицу она ведёт.
         const SCRIPT_URLS = {
-            "Ветеран войны": "https://script.google.com/macros/s/AKfycbyiRU0gLCXwGPxptJw5P9Ldh0DkzzTu9kodOvmcJx8FLwpydIvD_XoyNxDU9fTf1euBqw/exec",
-            "Ветеран тыла": "https://script.google.com/macros/s/AKfycbzUOD5jecDcxZSrbmIcmUNw4xO9NvFywmMr6eCPi1DzZsBTcKDX9IBNtLO7nAv5xxzF5Q/exec",
-            "Ребёнок войны": "https://script.google.com/macros/s/AKfycbwuc4me6F2SWLfvNrHSe4KIlbKDni08ZMozDDvOqbcDTMc_y6aDiFQ6C5vBCVvwP73A/exec",
-            "СВО": "https://script.google.com/macros/s/AKfycbxVJFLOdCK08k2GdDVLa_qf6BW0eBqxTXy9s98GtMB-b_LsjD4NxmmqcaZVx1BsvUSpBA/exec"
+            "Ветеран войны": "https://script.google.com/macros/s/AKfycbyiRU0gLCXwGPxptJw5P9Ldh0DkzzTu9kodOvmcJx8FLwpydIvD_XoyNxDU9fTf1euBqw/exec",   // ← ссылка для ветеранов войны
+            "Ветеран тыла": "https://script.google.com/macros/s/AKfycbzUOD5jecDcxZSrbmIcmUNw4xO9NvFywmMr6eCPi1DzZsBTcKDX9IBNtLO7nAv5xxzF5Q/exec",   // ← ссылка для ветеранов тыла
+            "Ребёнок войны": "https://script.google.com/macros/s/AKfycbwuc4me6F2SWLfvNrHSe4KIlbKDni08ZMozDDvOqbcDTMc_y6aDiFQ6C5vBCVvwP73A/exec",   // ← ссылка для детей войны
+            "СВО": "https://script.google.com/macros/s/AKfycbxVJFLOdCK08k2GdDVLa_qf6BW0eBqxTXy9s98GtMB-b_LsjD4NxmmqcaZVx1BsvUSpBA/exec"            // ← ссылка для участников СВО
         };
+        // =================================================================
 
         const form = document.getElementById('registerForm');
         const btn = document.getElementById('submitBtn');
@@ -401,6 +230,8 @@
 
         async function sendToGoogleSheets(url, data) {
             try {
+                // Добавляем в консоль лог для отладки – посмотрите, какой URL используется
+                console.log(`Отправка данных на URL: ${url}`, data);
                 await fetch(url, {
                     method: 'POST',
                     mode: 'no-cors',
