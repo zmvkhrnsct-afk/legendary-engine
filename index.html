@@ -177,7 +177,7 @@ button {
 
 <script>
 
-/* 🔗 НОВЫЕ ССЫЛКИ */
+/* 🔗 ССЫЛКИ */
 const urls = {
   'Ветеран тыла': 'https://script.google.com/macros/s/AKfycbzgWXtqTVBcM1-fm5feqXvkYOosKziyRdeXGIN72foJW5K-kFhFGdLZlmnDIQUrrYI1/exec',
   'Ветеран войны': 'https://script.google.com/macros/s/AKfycbz-nCPq5sWdhurz9FT6psJIly6ek-BDmAWu9m3J_vhTyL8wRx9h2q5HZKwphycoBa098A/exec',
@@ -195,11 +195,11 @@ async function loadList() {
 
     const res = await fetch(url, {
       method: 'POST',
-      body: JSON.stringify({ action: 'get' }),
-      headers: { 'Content-Type': 'text/plain' }
+      body: JSON.stringify({ action: 'get' })
     });
 
-    const data = await res.json();
+    const text = await res.text();
+    const data = JSON.parse(text);
 
     if (data.list) {
       cache = data.list;
@@ -207,11 +207,11 @@ async function loadList() {
       render();
     }
   } catch (e) {
-    console.log('load error', e);
+    console.log(e);
   }
 }
 
-/* 🚀 ОТПРАВКА */
+/* 🚀 ОТПРАВКА (ИСПРАВЛЕНО) */
 async function submitForm() {
   const lastName = document.getElementById('lastName').value.trim();
   const firstName = document.getElementById('firstName').value.trim();
@@ -233,13 +233,21 @@ async function submitForm() {
   const data = { lastName, firstName, middleName, fullName, category };
 
   try {
+    toast('Сохранение...', '');
+
     const res = await fetch(urls[category], {
       method: 'POST',
-      body: JSON.stringify(data),
-      headers: { 'Content-Type': 'text/plain' }
+      body: JSON.stringify(data)
     });
 
-    const result = await res.json();
+    const text = await res.text();   // 🔥 ВАЖНО
+
+    let result;
+    try {
+      result = JSON.parse(text);
+    } catch {
+      throw new Error('Сервер вернул не JSON: ' + text);
+    }
 
     if (result.result === 'success') {
       toast('Добавлено', 'success');
@@ -252,11 +260,11 @@ async function submitForm() {
     }
 
   } catch (e) {
-    toast('Ошибка сети', 'error');
+    toast('Ошибка: ' + e.message, 'error');
   }
 }
 
-/* 📜 RENDER */
+/* 📜 LIST */
 function render() {
   const list = document.getElementById('list');
   list.innerHTML = '';
@@ -272,7 +280,9 @@ function render() {
 /* 🔍 FILTER */
 function filterList(val) {
   const q = val.toLowerCase();
-  filtered = cache.filter(x => x.fullName.toLowerCase().includes(q));
+  filtered = cache.filter(x =>
+    x.fullName.toLowerCase().includes(q)
+  );
   render();
 }
 
@@ -285,7 +295,7 @@ function toast(msg, type) {
   setTimeout(() => t.className = 'toast', 2500);
 }
 
-/* старт */
+/* START */
 loadList();
 
 </script>
