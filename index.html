@@ -13,7 +13,6 @@ body {
   color: white;
 }
 
-/* HEADER */
 .header {
   text-align: center;
   padding: 25px;
@@ -30,7 +29,6 @@ body {
   color: #ffd700;
 }
 
-/* LAYOUT */
 .container {
   display: flex;
   justify-content: center;
@@ -39,7 +37,6 @@ body {
   flex-wrap: wrap;
 }
 
-/* BOXES */
 .form-box,
 .list-box {
   background: rgba(0,0,0,0.75);
@@ -49,7 +46,6 @@ body {
   border: 1px solid gold;
 }
 
-/* FORM */
 .form-grid {
   display: grid;
   gap: 10px;
@@ -77,14 +73,12 @@ button {
   font-size: 16px;
 }
 
-/* LIST */
 .list-item {
   border-bottom: 1px solid #333;
   padding: 8px 0;
   font-size: 14px;
 }
 
-/* SEARCH */
 .search {
   width: 100%;
   margin-bottom: 10px;
@@ -96,7 +90,6 @@ button {
   font-size: 16px;
 }
 
-/* TOAST */
 .toast {
   position: fixed;
   top: 20px;
@@ -108,19 +101,16 @@ button {
   opacity: 0;
   transition: 0.3s;
   z-index: 999;
-  max-width: 80%;
 }
 
 .toast.show { opacity: 1; }
 .toast.error { border-left: 4px solid red; }
 .toast.success { border-left: 4px solid limegreen; }
 
-/* MOBILE */
 @media (max-width: 768px) {
   .container {
     flex-direction: column;
     align-items: center;
-    padding: 15px;
   }
 
   .form-box,
@@ -152,9 +142,9 @@ button {
 
       <select id="category">
         <option value="">Категория</option>
-        <option>Ребёнок войны</option>
         <option>Ветеран войны</option>
         <option>Ветеран тыла</option>
+        <option>Ребёнок войны</option>
         <option>СВО</option>
       </select>
 
@@ -177,21 +167,21 @@ button {
 
 <script>
 
-/* 🔗 ОБНОВЛЁННЫЕ ССЫЛКИ */
+/* 🔗 НОВЫЕ ССЫЛКИ */
 const urls = {
-  'Ветеран войны': 'https://script.google.com/macros/s/AKfycbzGgCN5I5QG_alFn7y837k5uGu5fTrjgKdKPo5cE4BUCbfoVV4ekSgXdm9z7qXV1IrbmA/exec',
+  'Ветеран войны': 'https://script.google.com/macros/s/AKfycbwhPI9E6tKyr-3gxPZZbC6S6fnvg3FGK9Zorbr589wfwVBtrcMqV1kGlujpFXQMErwVbA/exec',
 
-  'Ветеран тыла': 'https://script.google.com/macros/s/AKfycbxhVdEqFEpCAEVxgY6ZJr3_YqeXugIYfrPQszJmbPeS-Ggk23b73d0J-_JkHg6yyMQkVQ/exec',
+  'Ветеран тыла': 'https://script.google.com/macros/s/AKfycbwOFKO-aj1pIuiwuJbVkOAepJhV0ZXWNbV36DNqybY9CI9F12BhCZcNUaQrfuDdqb97vw/exec',
 
-  'Ребёнок войны': 'https://script.google.com/macros/s/AKfycbzTgKJ0qQcm8UYNLjl30x76NTzQpaSs5veY42XUua0QTFe8J31GFX6_GgI2tl9wOyL8/exec',
+  'Ребёнок войны': 'https://script.google.com/macros/s/AKfycbzK3I_jBFi34FKs-SyqbVfa9gMZT95snrbC-hZxtLLQcuuxuiRiGrTQ3qmebft6ioDM/exec',
 
-  'СВО': 'https://script.google.com/macros/s/AKfycby_GAi4eOPeTmILGBYcB4QYqBIeUIo9xVAO5EVPWKX_FsAbh9eC-9waqDruBGaoq_k8QQ/exec'
+  'СВО': 'https://script.google.com/macros/s/AKfycbyBbhhblJdmj3J93RkJb_LnXRCBPh9EkKZ6O1nU7_ReAE_7vuxxdBkf8lTzsKO7gBOTnQ/exec'
 };
 
 let cache = [];
 let filtered = [];
 
-/* 🚀 загрузка */
+/* 🚀 ЗАГРУЗКА */
 async function loadList() {
   try {
     const url = urls['Ветеран войны'];
@@ -214,7 +204,7 @@ async function loadList() {
   }
 }
 
-/* 🚀 отправка */
+/* 🚀 ОТПРАВКА */
 async function submitForm() {
   const lastName = document.getElementById('lastName').value.trim();
   const firstName = document.getElementById('firstName').value.trim();
@@ -236,21 +226,13 @@ async function submitForm() {
   const data = { lastName, firstName, middleName, fullName, category };
 
   try {
-    toast('Сохранение...', '');
-
     const res = await fetch(urls[category], {
       method: 'POST',
       body: JSON.stringify(data)
     });
 
     const text = await res.text();
-
-    let result;
-    try {
-      result = JSON.parse(text);
-    } catch {
-      throw new Error('Сервер вернул не JSON');
-    }
+    const result = JSON.parse(text);
 
     if (result.result === 'success') {
       toast('Добавлено', 'success');
@@ -263,7 +245,7 @@ async function submitForm() {
     }
 
   } catch (e) {
-    toast('Ошибка: ' + e.message, 'error');
+    toast('Ошибка сети', 'error');
   }
 }
 
