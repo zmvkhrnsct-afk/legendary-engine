@@ -1,92 +1,208 @@
 <!DOCTYPE html>
 <html lang="ru">
 <head>
-  <meta charset="UTF-8">
-  <title>Форма</title>
+<meta charset="UTF-8">
+<title>Бессмертный полк</title>
 
-  <style>
-    body {
-      font-family: Arial, sans-serif;
-      background: #f4f6f8;
-      display: flex;
-      justify-content: center;
-      align-items: center;
-      height: 100vh;
-    }
+<style>
+body {
+  margin: 0;
+  font-family: Arial;
+  background: radial-gradient(circle at top, #2b0000, #000);
+  color: white;
+}
 
-    .form-container {
-      background: #fff;
-      padding: 25px;
-      border-radius: 10px;
-      box-shadow: 0 5px 15px rgba(0,0,0,0.1);
-      width: 320px;
-    }
+/* 🔥 HEADER */
+.header {
+  text-align: center;
+  padding: 25px;
+  border-bottom: 2px solid gold;
+}
 
-    h2 {
-      text-align: center;
-      margin-bottom: 20px;
-    }
+.header h1 {
+  margin: 0;
+  color: gold;
+}
 
-    input, select, button {
-      width: 100%;
-      margin-bottom: 12px;
-      padding: 10px;
-      border-radius: 6px;
-      border: 1px solid #ccc;
-      font-size: 14px;
-    }
+.header p {
+  margin: 5px 0 0;
+  color: #ffd700;
+}
 
-    button {
-      background: #007bff;
-      color: white;
-      border: none;
-      cursor: pointer;
-    }
+/* 📦 LAYOUT */
+.container {
+  display: flex;
+  justify-content: center;
+  gap: 25px;
+  padding: 30px;
+  flex-wrap: wrap;
+}
 
-    button:hover {
-      background: #0056b3;
-    }
+/* 📝 FORM */
+.form-box {
+  background: rgba(0,0,0,0.75);
+  padding: 20px;
+  border-radius: 12px;
+  width: 340px;
+  border: 1px solid gold;
+}
 
-    .status {
-      text-align: center;
-      font-size: 14px;
-      margin-top: 10px;
-    }
+/* 🔥 ВЫРАВНИВАНИЕ ПОЛЕЙ (ВАЖНОЕ ИЗМЕНЕНИЕ) */
+.form-grid {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 10px;
+}
 
-    .success { color: green; }
-    .error { color: red; }
-  </style>
+input, select {
+  width: 100%;
+  box-sizing: border-box;
+  padding: 10px;
+  border-radius: 6px;
+  border: none;
+  background: #111;
+  color: white;
+  border: 1px solid #444;
+}
+
+button {
+  width: 100%;
+  padding: 10px;
+  border: none;
+  border-radius: 6px;
+  background: gold;
+  font-weight: bold;
+  cursor: pointer;
+}
+
+/* 📜 LIST */
+.list-box {
+  background: rgba(0,0,0,0.6);
+  padding: 20px;
+  border-radius: 12px;
+  width: 340px;
+  border: 1px solid #444;
+}
+
+.list-item {
+  border-bottom: 1px solid #333;
+  padding: 8px 0;
+  font-size: 14px;
+}
+
+/* 🔍 search */
+.search {
+  width: 100%;
+  margin-bottom: 10px;
+  padding: 8px;
+  border-radius: 6px;
+  border: 1px solid #444;
+  background: #111;
+  color: white;
+}
+
+/* 🔔 toast */
+.toast {
+  position: fixed;
+  top: 20px;
+  right: 20px;
+  background: #222;
+  padding: 12px 16px;
+  border-radius: 8px;
+  border-left: 4px solid gold;
+  opacity: 0;
+  transition: 0.3s;
+}
+
+.toast.show { opacity: 1; }
+.toast.error { border-left: 4px solid red; }
+.toast.success { border-left: 4px solid limegreen; }
+</style>
 </head>
+
 <body>
 
-<div class="form-container">
-  <h2>Добавить запись</h2>
-
-  <form id="form">
-    <input type="text" id="lastName" placeholder="Фамилия" required>
-    <input type="text" id="firstName" placeholder="Имя" required>
-    <input type="text" id="middleName" placeholder="Отчество">
-
-    <select id="category" required>
-      <option value="">Выберите категорию</option>
-      <option>Ребёнок войны</option>
-      <option>Ветеран войны</option>
-      <option>Ветеран тыла</option>
-      <option>СВО</option>
-    </select>
-
-    <button type="submit">Отправить</button>
-  </form>
-
-  <div id="status" class="status"></div>
+<div class="header">
+  <h1>БЕССМЕРТНЫЙ ПОЛК</h1>
+  <p>Сохранение памяти о ветеранах</p>
 </div>
 
+<div class="container">
+
+  <!-- 📝 FORM -->
+  <div class="form-box">
+    <h3>Добавить ветерана</h3>
+
+    <div class="form-grid">
+      <input id="lastName" placeholder="Фамилия">
+      <input id="firstName" placeholder="Имя">
+      <input id="middleName" placeholder="Отчество">
+
+      <select id="category">
+        <option value="">Категория</option>
+        <option>Ребёнок войны</option>
+        <option>Ветеран войны</option>
+        <option>Ветеран тыла</option>
+        <option>СВО</option>
+      </select>
+
+      <button onclick="submitForm()">Добавить</button>
+    </div>
+  </div>
+
+  <!-- 📜 LIST -->
+  <div class="list-box">
+    <h3>Список участников</h3>
+
+    <input class="search" placeholder="Поиск..." oninput="filterList(this.value)">
+
+    <div id="list"></div>
+  </div>
+
+</div>
+
+<div id="toast" class="toast"></div>
+
 <script>
-document.getElementById('form').addEventListener('submit', async function(e) {
-  e.preventDefault();
 
-  const statusDiv = document.getElementById('status');
+// 🔗 ссылки
+const urls = {
+  'СВО': 'https://script.google.com/macros/s/AKfycbwdc6zuaeJtxjRGPrEmAXlB_26x911RA1SpqPnl4IUlxElg5TvvPHzKT2jwoyVBUMZRFw/exec',
+  'Ветеран войны': 'https://script.google.com/macros/s/AKfycbwB5Xn8Jp5jnR78uXbT-aJGfPJsBmtC8_DjWolg8Z4QKfQA6RDDTjS5Vg3HlWYENGB-dw/exec',
+  'Ребёнок войны': 'https://script.google.com/macros/s/AKfycbxlG5nq_QtERuMa0FRzccoTXq6wHCR2vzOtHHtPtkalV7IOvYFH0XPtv8-6TyXP2biQ/exec',
+  'Ветеран тыла': 'https://script.google.com/macros/s/AKfycbxads4RRuNUkMDHYGyFJtErsMaQHeWpgRMbxkPFK_DgTzjeNi3SPqfQY8P1nKydc1xu-g/exec'
+};
 
+let cache = [];
+let filtered = [];
+
+/* 🚀 ЗАГРУЗКА СПИСКА */
+async function loadList() {
+  try {
+    // берём из первой доступной таблицы (можно расширить позже)
+    const url = urls['Ветеран войны'];
+
+    const res = await fetch(url, {
+      method: 'POST',
+      body: JSON.stringify({ action: 'get' }),
+      headers: { 'Content-Type': 'text/plain' }
+    });
+
+    const text = await res.text();
+    const data = JSON.parse(text);
+
+    if (data.list) {
+      cache = data.list;
+      filtered = cache;
+      render();
+    }
+  } catch (e) {
+    console.log('load error', e);
+  }
+}
+
+/* 🚀 ОТПРАВКА */
+async function submitForm() {
   const lastName = document.getElementById('lastName').value.trim();
   const firstName = document.getElementById('firstName').value.trim();
   const middleName = document.getElementById('middleName').value.trim();
@@ -94,73 +210,74 @@ document.getElementById('form').addEventListener('submit', async function(e) {
 
   const fullName = (lastName + ' ' + firstName + ' ' + middleName).trim();
 
-  // ✅ Валидация
   if (!lastName || !firstName || !category) {
-    showStatus('Заполните обязательные поля', 'error');
+    toast('Заполните поля', 'error');
     return;
   }
 
-  const data = {
-    lastName,
-    firstName,
-    middleName,
-    fullName,
-    category
-  };
-
-  // 🔗 ТВОИ НОВЫЕ ССЫЛКИ
-  const urlMap = {
-    'СВО': 'https://script.google.com/macros/s/AKfycbwdc6zuaeJtxjRGPrEmAXlB_26x911RA1SpqPnl4IUlxElg5TvvPHzKT2jwoyVBUMZRFw/exec',
-    'Ветеран войны': 'https://script.google.com/macros/s/AKfycbwB5Xn8Jp5jnR78uXbT-aJGfPJsBmtC8_DjWolg8Z4QKfQA6RDDTjS5Vg3HlWYENGB-dw/exec',
-    'Ребёнок войны': 'https://script.google.com/macros/s/AKfycbxlG5nq_QtERuMa0FRzccoTXq6wHCR2vzOtHHtPtkalV7IOvYFH0XPtv8-6TyXP2biQ/exec',
-    'Ветеран тыла': 'https://script.google.com/macros/s/AKfycbxads4RRuNUkMDHYGyFJtErsMaQHeWpgRMbxkPFK_DgTzjeNi3SPqfQY8P1nKydc1xu-g/exec'
-  };
-
-  const url = urlMap[category];
-
-  if (!url) {
-    showStatus('Ошибка категории', 'error');
+  if (cache.some(x => x.fullName === fullName)) {
+    toast('Уже в списке', 'error');
     return;
   }
+
+  const data = { lastName, firstName, middleName, fullName, category };
 
   try {
-    showStatus('Отправка...', '');
-
-    const response = await fetch(url, {
+    const res = await fetch(urls[category], {
       method: 'POST',
       body: JSON.stringify(data),
-      headers: {
-        'Content-Type': 'text/plain' // 🔥 важно для Apps Script
-      }
+      headers: { 'Content-Type': 'text/plain' }
     });
 
-    const text = await response.text();
-
-    let result;
-    try {
-      result = JSON.parse(text);
-    } catch {
-      throw new Error('Сервер вернул не JSON');
-    }
+    const result = await res.json();
 
     if (result.result === 'success') {
-      showStatus('Успешно отправлено', 'success');
-      document.getElementById('form').reset();
+      toast('Добавлено', 'success');
+
+      cache.unshift(data);
+      filtered = cache;
+      render();
     } else {
-      showStatus(result.message || 'Ошибка', 'error');
+      toast(result.message || 'Ошибка', 'error');
     }
 
-  } catch (error) {
-    console.error(error);
-    showStatus('Ошибка: ' + error.message, 'error');
+  } catch (e) {
+    toast('Ошибка сети', 'error');
   }
-});
-
-function showStatus(message, type) {
-  const statusDiv = document.getElementById('status');
-  statusDiv.textContent = message;
-  statusDiv.className = 'status ' + type;
 }
+
+/* 📜 RENDER */
+function render() {
+  const list = document.getElementById('list');
+  list.innerHTML = '';
+
+  filtered.slice(0, 50).forEach(item => {
+    const div = document.createElement('div');
+    div.className = 'list-item';
+    div.textContent = `${item.fullName} — ${item.category}`;
+    list.appendChild(div);
+  });
+}
+
+/* 🔍 FILTER */
+function filterList(val) {
+  const q = val.toLowerCase();
+  filtered = cache.filter(x => x.fullName.toLowerCase().includes(q));
+  render();
+}
+
+/* 🔔 TOAST */
+function toast(msg, type) {
+  const t = document.getElementById('toast');
+  t.textContent = msg;
+  t.className = 'toast show ' + type;
+
+  setTimeout(() => t.className = 'toast', 2500);
+}
+
+/* старт */
+loadList();
+
 </script>
 
 </body>
