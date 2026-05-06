@@ -1,313 +1,160 @@
 <!DOCTYPE html>
 <html lang="ru">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
-    <title>Бессмертный полк — р.п. Любинский</title>
-    <style>
-        * { margin: 0; padding: 0; box-sizing: border-box; }
-        body {
-            font-family: 'Segoe UI', 'Roboto', 'Georgia', serif;
-            min-height: 100vh;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            padding: 20px;
-            position: relative;
-            overflow-x: hidden;
-        }
-        .video-background-wrapper {
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            z-index: -2;
-            overflow: hidden;
-        }
-        .video-background-wrapper iframe {
-            position: absolute;
-            top: 50%;
-            left: 50%;
-            width: 100%;
-            height: 100%;
-            transform: translate(-50%, -50%);
-            object-fit: cover;
-            pointer-events: none;
-            border: none;
-        }
-        .overlay {
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background: rgba(0, 0, 0, 0.55);
-            z-index: -1;
-        }
-        .ribbon-top, .ribbon-bottom {
-            position: fixed;
-            left: 0;
-            right: 0;
-            height: 12px;
-            background: linear-gradient(90deg, #000 0%, #000 20%, #FF8C00 20%, #FF8C00 40%, #000 40%, #000 60%, #FF8C00 60%, #FF8C00 80%, #000 80%, #000 100%);
-            background-size: 50px 100%;
-            z-index: 1000;
-        }
-        .ribbon-top { top: 0; }
-        .ribbon-bottom { bottom: 0; }
-        .card {
-            background: rgba(30, 15, 10, 0.65);
-            backdrop-filter: blur(12px);
-            border-radius: 48px 48px 48px 24px;
-            box-shadow: 0 30px 60px rgba(0,0,0,0.6), inset 0 1px 0 rgba(255,255,255,0.1);
-            max-width: 550px;
-            width: 100%;
-            padding: 40px 32px;
-            text-align: center;
-            position: relative;
-            border: 1px solid rgba(212, 163, 115, 0.6);
-        }
-        .card::before { content: "★"; position: absolute; top: 20px; right: 25px; font-size: 40px; color: #FFD700; opacity: 0.5; }
-        .medal-ribbon {
-            position: absolute; top: -8px; left: 30px; width: 80px; height: 25px;
-            background: repeating-linear-gradient(45deg, #000 0px, #000 8px, #FF8C00 8px, #FF8C00 16px);
-            border-radius: 15px 15px 0 0;
-        }
-        .district { font-size: 14px; letter-spacing: 3px; color: #FFD700; margin-bottom: 10px; text-transform: uppercase; font-weight: 500; text-shadow: 1px 1px 0 #4a0000; }
-        h1 { font-size: 34px; color: #FFD700; margin-bottom: 8px; font-weight: 700; letter-spacing: 2px; text-shadow: 2px 2px 0 #8B0000; }
-        .subtitle { color: #f0c0a0; font-size: 16px; margin-bottom: 20px; border-bottom: 2px solid #c41e3a; padding-bottom: 12px; display: inline-block; font-style: italic; }
-        .victory-symbol { margin: 10px 0 20px; font-size: 48px; letter-spacing: 10px; color: #FFD700; text-shadow: 0 0 5px #c41e3a; }
-        .form-group { margin-bottom: 24px; text-align: left; }
-        label { display: block; font-weight: 600; margin-bottom: 8px; color: #FFE4C4; font-size: 15px; text-shadow: 1px 1px 0 #2a0a0a; }
-        input, select {
-            width: 100%;
-            padding: 14px 18px;
-            font-size: 16px;
-            border: 2px solid #c4a06a;
-            border-radius: 40px;
-            background: rgba(255, 245, 235, 0.95);
-            transition: all 0.25s ease-in-out;
-            outline: none;
-        }
-        input:focus, select:focus {
-            border-color: #FFD700;
-            box-shadow: 0 0 0 3px rgba(255,215,0,0.3);
-            background: white;
-            padding: 16px 20px;
-            font-size: 18px;
-        }
-        select {
-            appearance: none;
-            background-image: url('data:image/svg+xml;charset=US-ASCII,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20width%3D%2224%22%20height%3D%2224%22%20viewBox%3D%220%200%2024%2024%22%20fill%3D%22%238B0000%22%3E%3Cpath%20d%3D%22M7%2010l5%205%205-5z%22%2F%3E%3C%2Fsvg%3E');
-            background-repeat: no-repeat;
-            background-position: right 18px center;
-            background-size: 20px;
-            cursor: pointer;
-        }
-        button {
-            width: 100%;
-            background: linear-gradient(135deg, #8B0000 0%, #c41e3a 100%);
-            color: #FFD700;
-            border: none;
-            padding: 16px;
-            font-size: 20px;
-            font-weight: bold;
-            border-radius: 50px;
-            cursor: pointer;
-            margin-top: 16px;
-            font-family: 'Georgia', serif;
-            letter-spacing: 1px;
-            text-shadow: 1px 1px 0 #4a0000;
-            box-shadow: 0 5px 15px rgba(0,0,0,0.5);
-            transition: transform 0.2s ease, background 0.2s ease;
-        }
-        button:hover { transform: scale(1.02); background: linear-gradient(135deg, #a01020 0%, #d42a4a 100%); }
-        button:active { transform: scale(0.98); }
-        .success { background: #1e4a2f; color: #d4ffc4; padding: 14px; border-radius: 40px; margin-top: 24px; display: none; border-left: 6px solid #FFD700; }
-        .error { background: #5a1a1a; color: #ffb3b3; padding: 14px; border-radius: 40px; margin-top: 16px; display: none; border-left: 6px solid #FFD700; }
-        .spinner { display: inline-block; width: 20px; height: 20px; border: 2px solid rgba(255,215,0,0.3); border-radius: 50%; border-top-color: #FFD700; animation: spin 0.6s linear infinite; margin-right: 8px; vertical-align: middle; }
-        @keyframes spin { to { transform: rotate(360deg); } }
-        .info { font-size: 11px; color: #e0c8a8; margin-top: 28px; padding-top: 16px; border-top: 1px dashed #c4a06a; }
-        .field-required { color: #FFD700; margin-left: 4px; }
-        .poem-line { font-size: 13px; color: #FFD700; margin-top: 20px; font-style: italic; line-height: 1.4; text-shadow: 1px 1px 0 #4a0000; }
-        .reset-btn {
-            background: rgba(0,0,0,0.5);
-            color: #FFD700;
-            font-size: 12px;
-            padding: 6px 12px;
-            margin-top: 16px;
-            display: inline-block;
-            cursor: pointer;
-            border-radius: 30px;
-            border: 1px solid #c4a06a;
-            transition: 0.2s;
-        }
-        .reset-btn:hover { background: rgba(0,0,0,0.7); transform: scale(1.02); }
-        @media (max-width: 550px) {
-            .card { padding: 30px 20px; }
-            h1 { font-size: 26px; }
-            .victory-symbol { font-size: 36px; }
-            button { font-size: 16px; padding: 14px; }
-            input:focus, select:focus { padding: 14px 20px; font-size: 17px; }
-        }
-    </style>
+  <meta charset="UTF-8">
+  <title>Форма добавления</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      background: #f4f6f8;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      height: 100vh;
+    }
+
+    .form-container {
+      background: #fff;
+      padding: 25px;
+      border-radius: 10px;
+      box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+      width: 320px;
+    }
+
+    h2 {
+      text-align: center;
+      margin-bottom: 20px;
+    }
+
+    input, select, button {
+      width: 100%;
+      margin-bottom: 12px;
+      padding: 10px;
+      border-radius: 6px;
+      border: 1px solid #ccc;
+      font-size: 14px;
+    }
+
+    button {
+      background: #007bff;
+      color: white;
+      border: none;
+      cursor: pointer;
+      transition: 0.3s;
+    }
+
+    button:hover {
+      background: #0056b3;
+    }
+
+    .status {
+      text-align: center;
+      font-size: 14px;
+      margin-top: 10px;
+    }
+
+    .success { color: green; }
+    .error { color: red; }
+  </style>
 </head>
 <body>
-    <div class="video-background-wrapper">
-        <iframe src="https://vkvideo.ru/video_ext.php?oid=-34261602&id=456244048&hd=3&autoplay=1&loop=1&mute=1" frameborder="0" allow="autoplay; encrypted-media; fullscreen; picture-in-picture; loop" allowfullscreen></iframe>
-    </div>
-    <div class="overlay"></div>
-    <div class="ribbon-top"></div>
-    <div class="ribbon-bottom"></div>
-    <div class="card">
-        <div class="medal-ribbon"></div>
-        <div class="district">р.п. ЛЮБИНСКИЙ</div>
-        <div class="victory-symbol">★ ⚔️ ★</div>
-        <h1>БЕССМЕРТНЫЙ ПОЛК</h1>
-        <div class="subtitle">Помним • Гордимся • Благодарим</div>
-        <form id="registerForm">
-            <div class="form-group">
-                <label>Категория участника <span class="field-required">*</span></label>
-                <select id="category" required>
-                    <option value="" disabled selected>Выберите категорию</option>
-                    <option value="Ветеран войны">Ветеран войны</option>
-                    <option value="Ветеран тыла">Ветеран тыла</option>
-                    <option value="Ребёнок войны">Ребёнок войны</option>
-                    <option value="СВО">СВО</option>
-                </select>
-            </div>
-            <div class="form-group">
-                <label>Фамилия ветерана <span class="field-required">*</span></label>
-                <input type="text" id="lastName" placeholder="Иванов" autocomplete="off" required>
-            </div>
-            <div class="form-group">
-                <label>Имя ветерана <span class="field-required">*</span></label>
-                <input type="text" id="firstName" placeholder="Иван" autocomplete="off" required>
-            </div>
-            <div class="form-group">
-                <label>Отчество ветерана</label>
-                <input type="text" id="middleName" placeholder="Иванович" autocomplete="off">
-            </div>
-            <button type="submit" id="submitBtn">⭐ ВСТАТЬ В БЕССМЕРТНЫЙ ПОЛК ⭐</button>
-        </form>
-        <div id="successMessage" class="success"></div>
-        <div id="errorMessage" class="error"></div>
-        <div class="poem-line">«Никто не забыт, ничто не забыто»</div>
-        <div class="info">🕯️ Нажимая кнопку, вы сохраняете память о герое<br>Данные будут внесены в соответствующий список Бессмертного полка р.п. Любинский</div>
-        <div class="reset-btn" id="resetStorageBtn">🗑️ Сбросить историю (для теста)</div>
-    </div>
 
-    <script>
-        // НОВЫЕ ССЫЛКИ (ОБНОВЛЕНЫ 06.05.2026)
-        const SCRIPT_URLS = {
-            "Ветеран войны": "https://script.google.com/macros/s/AKfycby5XerZmNp9J5vldOPiboYwnJY3DK8v-O9X-6JGFTeGH9qMERfqCREKkhsiw9dgXmOZOg/exec",
-            "Ветеран тыла": "https://script.google.com/macros/s/AKfycbzNlAU4pXm-isLpNEJD7h5me8_oi7y_TVgw1_AQjauRvqoNS0rGIBJ1nJsrg4fzIhpRIg/exec",
-            "Ребёнок войны": "https://script.google.com/macros/s/AKfycbyOIeBteKjpQL7BrMwD4LVkN6vZysKLOAI0k7VhUDSrNeMLXdBE7Nhjda-s3Ssyz_dz/exec",
-            "СВО": "https://script.google.com/macros/s/AKfycbwu7l5GnkRlVvaq1i7wDjJ6N9ql7kkoKhae2d_yalMkTBXOhBYahGIPWE6wDNRa9pufVA/exec"
-        };
+<div class="form-container">
+  <h2>Добавить запись</h2>
 
-        const form = document.getElementById('registerForm');
-        const btn = document.getElementById('submitBtn');
-        const successDiv = document.getElementById('successMessage');
-        const errorDiv = document.getElementById('errorMessage');
-        const resetStorageBtn = document.getElementById('resetStorageBtn');
+  <form id="form">
+    <input type="text" id="lastName" placeholder="Фамилия" required>
+    <input type="text" id="firstName" placeholder="Имя" required>
+    <input type="text" id="middleName" placeholder="Отчество">
 
-        // Локальное хранилище отправленных (защита от дублей в рамках одного браузера)
-        let sentLocal = {};
+    <select id="category" required>
+      <option value="">Выберите категорию</option>
+      <option>Ребёнок войны</option>
+      <option>Ветеран войны</option>
+      <option>Ветеран тыла</option>
+      <option>СВО</option>
+    </select>
 
-        function loadLocalSent() {
-            const stored = localStorage.getItem("ImmortalSent");
-            if (stored) {
-                try { sentLocal = JSON.parse(stored); } catch(e){ sentLocal = {}; }
-            }
-        }
-        function saveLocalSent() { localStorage.setItem("ImmortalSent", JSON.stringify(sentLocal)); }
-        function getRecordKey(category, ln, fn, mn) {
-            const norm = (s) => s.trim().toLowerCase().replace(/\s+/g, ' ');
-            return `${category}|${norm(ln)} ${norm(fn)} ${norm(mn||'')}`;
-        }
-        function isDuplicateLocal(category, ln, fn, mn) { return !!sentLocal[getRecordKey(category, ln, fn, mn)]; }
-        function markAsSent(category, ln, fn, mn) {
-            sentLocal[getRecordKey(category, ln, fn, mn)] = true;
-            saveLocalSent();
-        }
+    <button type="submit">Отправить</button>
+  </form>
 
-        function showSuccess(text) {
-            successDiv.style.display = 'block';
-            successDiv.innerText = text;
-            errorDiv.style.display = 'none';
-            setTimeout(() => successDiv.style.display = 'none', 6000);
-        }
-        function showError(text) {
-            errorDiv.style.display = 'block';
-            errorDiv.innerText = text;
-            successDiv.style.display = 'none';
-        }
-        function setLoading(isLoading) {
-            btn.disabled = isLoading;
-            btn.innerHTML = isLoading ? '<span class="spinner"></span> Отправка...' : '⭐ ВСТАТЬ В БЕССМЕРТНЫЙ ПОЛК ⭐';
-        }
-        function getFullName() {
-            const ln = document.getElementById('lastName').value.trim();
-            const fn = document.getElementById('firstName').value.trim();
-            const mn = document.getElementById('middleName').value.trim();
-            return `${ln} ${fn}${mn ? ' ' + mn : ''}`;
-        }
-        // Отправка через no-cors (нет CORS-ошибок)
-        async function sendToGoogleSheets(url, data) {
-            try {
-                await fetch(url, {
-                    method: 'POST',
-                    mode: 'no-cors',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify(data)
-                });
-                return true;
-            } catch (err) {
-                console.error(err);
-                return false;
-            }
-        }
+  <div id="status" class="status"></div>
+</div>
 
-        loadLocalSent();
+<script>
+document.getElementById('form').addEventListener('submit', async function(e) {
+  e.preventDefault();
 
-        form.addEventListener('submit', async (e) => {
-            e.preventDefault();
-            const ln = document.getElementById('lastName').value.trim();
-            const fn = document.getElementById('firstName').value.trim();
-            const mn = document.getElementById('middleName').value.trim();
-            const cat = document.getElementById('category').value;
-            if (!ln || !fn) return showError('Заполните фамилию и имя');
-            if (!cat) return showError('Выберите категорию');
-            const url = SCRIPT_URLS[cat];
-            if (!url) return showError('Для этой категории не настроена отправка');
+  const statusDiv = document.getElementById('status');
 
-            if (isDuplicateLocal(cat, ln, fn, mn)) {
-                showError(`⚠️ Ветеран "${getFullName()}" уже был добавлен ранее на этом устройстве. Повторная отправка невозможна.`);
-                return;
-            }
+  const lastName = document.getElementById('lastName').value.trim();
+  const firstName = document.getElementById('firstName').value.trim();
+  const middleName = document.getElementById('middleName').value.trim();
+  const category = document.getElementById('category').value;
 
-            setLoading(true);
-            const success = await sendToGoogleSheets(url, {
-                category: cat, lastName: ln, firstName: fn, middleName: mn,
-                fullName: getFullName(), timestamp: new Date().toISOString()
-            });
-            if (success) {
-                markAsSent(cat, ln, fn, mn);
-                showSuccess(`✅ ${getFullName()} (${cat}) добавлен! Вечная память!`);
-                form.reset();
-            } else {
-                showError('❌ Ошибка отправки. Проверьте интернет.');
-            }
-            setLoading(false);
-        });
+  const fullName = `${lastName} ${firstName} ${middleName}`.trim();
 
-        resetStorageBtn.addEventListener('click', () => {
-            sentLocal = {};
-            saveLocalSent();
-            showSuccess('Локальная история очищена. Теперь можно добавлять повторно.');
-        });
-    </script>
+  // ✅ Валидация
+  if (!lastName || !firstName || !category) {
+    showStatus('Заполните обязательные поля', 'error');
+    return;
+  }
+
+  const data = {
+    lastName,
+    firstName,
+    middleName,
+    fullName,
+    category
+  };
+
+  // 🔗 URL таблиц
+  const urlMap = {
+    'Ребёнок войны': 'https://script.google.com/macros/s/AKfycbxgyg865P5c7mtVeNSRZMvxPStSdAwNYK0EisMVX2k8YRcnTbOTJ79PI_sRpKqOM8GZ/exec',
+    'Ветеран войны': 'https://script.google.com/macros/s/AKfycbyI3-QrWBm9seT2ji1Zfe_u77t8H1ZT8T1dVWy9C7e324Y1M25_wr6DfxbKVkUYqAwolQ/exec',
+    'Ветеран тыла': 'https://script.google.com/macros/s/AKfycbxbtn_p8-9oHT7p1mU7sVpOxxp7WZr4lsRHAB78-r3D7kKp_CiHZisvvVZxxpdg1d3fHA/exec',
+    'СВО': 'https://script.google.com/macros/s/AKfycbwMnOZr5m0YAC8gsjTrWFc_udAeIS9VL8XpPSulj5LwXaP29-Iw3xughRv8lcyUjXFMzw/exec'
+  };
+
+  const url = urlMap[category];
+
+  if (!url) {
+    showStatus('Ошибка категории', 'error');
+    return;
+  }
+
+  try {
+    showStatus('Отправка...', '');
+
+    const response = await fetch(url, {
+      method: 'POST',
+      body: JSON.stringify(data),
+      headers: {
+        'Content-Type': 'application/json'
+      }
+    });
+
+    const result = await response.json();
+
+    if (result.result === 'success') {
+      showStatus('Успешно отправлено ✅', 'success');
+      document.getElementById('form').reset();
+    } else {
+      showStatus(result.message || 'Ошибка', 'error');
+    }
+
+  } catch (error) {
+    console.error(error);
+    showStatus('Ошибка соединения', 'error');
+  }
+});
+
+function showStatus(message, type) {
+  const statusDiv = document.getElementById('status');
+  statusDiv.textContent = message;
+  statusDiv.className = 'status ' + type;
+}
+</script>
+
 </body>
 </html>
