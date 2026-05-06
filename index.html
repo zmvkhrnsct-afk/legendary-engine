@@ -8,11 +8,27 @@
 <style>
 body {
   margin: 0;
-  font-family: Arial;
-  background: radial-gradient(circle at top, #2b0000, #000);
+  font-family: Arial, sans-serif;
   color: white;
+
+  /* 🖼️ ФОН */
+  background-image: url("https://avatars.mds.yandex.net/get-altay/2786941/2a000001764d11b85db4b67e6762ddc3d31b/XXL_height");
+  background-size: cover;
+  background-position: center;
+  background-repeat: no-repeat;
+  background-attachment: fixed;
 }
 
+/* 🌑 затемнение фона */
+body::before {
+  content: "";
+  position: fixed;
+  inset: 0;
+  background: rgba(0,0,0,0.55);
+  z-index: -1;
+}
+
+/* HEADER */
 .header {
   text-align: center;
   padding: 25px;
@@ -29,6 +45,7 @@ body {
   color: #ffd700;
 }
 
+/* LAYOUT */
 .container {
   display: flex;
   justify-content: center;
@@ -37,6 +54,7 @@ body {
   flex-wrap: wrap;
 }
 
+/* BOX */
 .form-box,
 .list-box {
   background: rgba(0,0,0,0.75);
@@ -46,6 +64,7 @@ body {
   border: 1px solid gold;
 }
 
+/* FORM */
 .form-grid {
   display: grid;
   gap: 10px;
@@ -73,12 +92,14 @@ button {
   font-size: 16px;
 }
 
+/* LIST */
 .list-item {
   border-bottom: 1px solid #333;
   padding: 8px 0;
   font-size: 14px;
 }
 
+/* SEARCH */
 .search {
   width: 100%;
   margin-bottom: 10px;
@@ -89,6 +110,7 @@ button {
   color: white;
 }
 
+/* TOAST */
 .toast {
   position: fixed;
   top: 20px;
@@ -106,6 +128,7 @@ button {
 .toast.error { border-left: 4px solid red; }
 .toast.success { border-left: 4px solid limegreen; }
 
+/* MOBILE */
 @media (max-width: 768px) {
   .container {
     flex-direction: column;
@@ -129,6 +152,7 @@ button {
 
 <div class="container">
 
+  <!-- FORM -->
   <div class="form-box">
     <h3>Добавить ветерана</h3>
 
@@ -149,9 +173,12 @@ button {
     </div>
   </div>
 
+  <!-- LIST -->
   <div class="list-box">
     <h3>Список участников</h3>
+
     <input class="search" placeholder="Поиск..." oninput="filterList(this.value)">
+
     <div id="list"></div>
   </div>
 
@@ -161,7 +188,7 @@ button {
 
 <script>
 
-/* 🔗 НОВЫЕ ССЫЛКИ */
+/* 🔗 ССЫЛКИ */
 const urls = {
   'Ветеран тыла': 'https://script.google.com/macros/s/AKfycbzMDk_v-8awvzqdkgw_kaiOlWThrLTRS1mnegk3wzrWZY-Ym2ilQi7re9AN4Erxqbefmg/exec',
 
@@ -175,6 +202,7 @@ const urls = {
 let cache = [];
 let filtered = [];
 
+/* LOAD */
 async function loadList() {
   try {
     const url = urls['Ветеран войны'];
@@ -197,6 +225,7 @@ async function loadList() {
   }
 }
 
+/* SUBMIT */
 async function submitForm() {
   const lastName = document.getElementById('lastName').value.trim();
   const firstName = document.getElementById('firstName').value.trim();
@@ -240,6 +269,7 @@ async function submitForm() {
   }
 }
 
+/* RENDER */
 function render() {
   const list = document.getElementById('list');
   list.innerHTML = '';
@@ -252,6 +282,7 @@ function render() {
   });
 }
 
+/* SEARCH */
 function filterList(val) {
   const q = val.toLowerCase();
   filtered = cache.filter(x =>
@@ -260,6 +291,7 @@ function filterList(val) {
   render();
 }
 
+/* TOAST */
 function toast(msg, type) {
   const t = document.getElementById('toast');
   t.textContent = msg;
