@@ -7,7 +7,6 @@
 <link href="https://fonts.googleapis.com/css2?family=Inter:opsz,wght@14..32,300;400;500;600;700&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
 <style>
-  /* (стили такие же, как в предыдущем ответе, не меняем) */
   * { margin: 0; padding: 0; box-sizing: border-box; }
   body { font-family: 'Inter', sans-serif; background-color: #07090e; color: #f0f2f5; background-image: url("https://avatars.mds.yandex.net/get-altay/2786941/2a000001764d11b85db4b67e6762ddc3d31b/XXL_height"); background-size: cover; background-position: center 25%; background-attachment: fixed; position: relative; }
   body::before { content: ""; position: fixed; inset: 0; background: radial-gradient(circle at 30% 20%, rgba(0,0,0,0.65), rgba(0,0,0,0.85)); backdrop-filter: blur(3px); z-index: -2; }
@@ -107,7 +106,15 @@
 <div id="photoModal" class="modal" onclick="closeModal()"><img id="modalImage" src=""></div>
 
 <script>
-  // ============ URL ВАШИХ СКРИПТОВ (ПРОВЕРЕНЫ) ============
+  // ============ ПРЯМЫЕ ССЫЛКИ НА CSV (из ваших pubhtml) ============
+  const CSV_URLS = {
+    'Ветеран войны': 'https://docs.google.com/spreadsheets/d/e/2PACX-1vTPK9swUo8DWhMrxlkp2nuWigrihZXYielY-Ivec_FuzAF46A28w5IrR9kCxUaKp5w73RRqOUDKPlyC/export?format=csv&gid=0',
+    'Ветеран тыла': 'https://docs.google.com/spreadsheets/d/e/2PACX-1vROvZB6eA61f_-ZRlRXERhf9GnX0UIglqCTpJb0BTGmA27A4kHfnYpr4muoTRReSRqOY2nESho0uicc/export?format=csv&gid=0',
+    'Ребёнок войны': 'https://docs.google.com/spreadsheets/d/e/2PACX-1vTa9DdiaXVqC-0Xsl4yTz3js44cGzudhVn5cERFhMwuj6xbgnDX6sYdhtiniUulxfmf8Ni2sRcjWU_U/export?format=csv&gid=0',
+    'СВО': 'https://docs.google.com/spreadsheets/d/e/2PACX-1vRUEE1WW6FEgQaZTkVzytT7hqSYMJ4PZq0ymriGRhvi8TplKkR4nS-N1sDW-DHCznUrZV-jPlKKX9Ts/export?format=csv&gid=0'
+  };
+
+  // URL скриптов для отправки (те же, что были)
   const SCRIPT_URLS = {
     'Ветеран войны': 'https://script.google.com/macros/s/AKfycby6DIdWaptSqzKXMKt64d8C2Z-2-J4t7AcCITAp_b6nhjBddmW9sA0-d7TksOGCh8_h9Q/exec',
     'Ветеран тыла': 'https://script.google.com/macros/s/AKfycbzOhCsOUoqS4d0fh7fTGynTBa_Zlru4_4spcYwanvmv-CEf79cvFzogZQaSD4duskyXbg/exec',
@@ -115,63 +122,61 @@
     'СВО': 'https://script.google.com/macros/s/AKfycbwfGI1RDvsui963gRx5uEyZ1hvSH8XAwFr5MMycS3xrE0yR41wW2_vstFMqHgDsd5OoYg/exec'
   };
 
-  let allVeterans = [];
-  let filteredVeterans = [];
-  let currentPhotoBase64 = null;
-  let isLoading = false;
+  let allVeterans = [], filteredVeterans = [], currentPhotoBase64 = null;
 
-  // ============ ЗАГРУЗКА ДАННЫХ (JSONP) ============
-  function loadCategoryData(url, category) {
-    return new Promise((resolve) => {
-      const callbackName = 'jsonp_' + Date.now() + '_' + Math.random().toString(36).substr(2, 8);
-      window[callbackName] = function(response) {
-        delete window[callbackName];
-        if (response && response.result === 'success' && Array.isArray(response.list)) {
-          resolve(response.list);
-        } else {
-          resolve([]);
+  // === ЗАГРУЗКА CSV ===
+  async function loadCSV(url, category) {
+    try {
+      const resp = await fetch(url);
+      const text = await resp.text();
+      const lines = text.split('\n');
+      const result = [];
+      for (let i = 1; i < lines.length; i++) {
+        const line = lines[i].trim();
+        if (!line) continue;
+        // Простой парсинг CSV с учётом кавычек
+        const cells = [];
+        let cur = '', quotes = false;
+        for (let ch of line) {
+          if (ch === '"') quotes = !quotes;
+          else if (ch === ',' && !quotes) { cells.push(cur); cur = ''; }
+          else cur += ch;
         }
-      };
-      const script = document.createElement('script');
-      script.src = url + '?callback=' + callbackName + '&action=get';
-      script.onerror = () => { delete window[callbackName]; resolve([]); };
-      document.body.appendChild(script);
-      setTimeout(() => {
-        if (window[callbackName]) { delete window[callbackName]; resolve([]); }
-      }, 10000);
-    });
+        cells.push(cur);
+        if (cells.length < 6) continue;
+        result.push({
+          date: cells[0] || '',
+          category: category,
+          lastName: cells[2] || '',
+          firstName: cells[3] || '',
+          middleName: cells[4] || '',
+          fullName: cells[5] || '',
+          representative: cells[6] || 'Не указан',
+          biography: cells[7] || 'Нет описания',
+          photoUrl: cells[8] || ''
+        });
+      }
+      return result;
+    } catch(e) {
+      console.warn(`Ошибка загрузки ${category}:`, e);
+      return [];
+    }
   }
 
   async function loadAllData() {
-    if (isLoading) return;
-    isLoading = true;
     showToast('Загрузка данных...', 'success');
-    const promises = [];
-    for (const [category, url] of Object.entries(SCRIPT_URLS)) {
-      promises.push(loadCategoryData(url, category));
-    }
+    const promises = Object.entries(CSV_URLS).map(([cat, url]) => loadCSV(url, cat));
     const results = await Promise.all(promises);
     let combined = [];
-    const categories = Object.keys(SCRIPT_URLS);
-    results.forEach((list, idx) => {
-      if (list && list.length) {
-        list.forEach(item => {
-          combined.push({
-            ...item,
-            category: item.category || categories[idx]
-          });
-        });
-      }
-    });
-    combined.sort((a, b) => new Date(b.date) - new Date(a.date));
+    results.forEach(arr => { if (arr.length) combined.push(...arr); });
+    combined.sort((a,b) => new Date(b.date) - new Date(a.date));
     allVeterans = combined;
     filteredVeterans = [...allVeterans];
     renderList();
     showToast(`Загружено ${allVeterans.length} записей`, 'success');
-    isLoading = false;
   }
 
-  // ============ ДОБАВЛЕНИЕ ЧЕРЕЗ ФОРМУ (БЕЗ CORS) ============
+  // === ОТПРАВКА ЧЕРЕЗ ФОРМУ (БЕЗ CORS) ===
   function submitForm() {
     const lastName = document.getElementById('lastName').value.trim();
     const firstName = document.getElementById('firstName').value.trim();
@@ -184,49 +189,39 @@
       showToast('Заполните фамилию, имя и категорию', 'error');
       return;
     }
-
     const fullName = `${lastName} ${firstName} ${middleName}`.trim().replace(/\s+/g, ' ');
     if (allVeterans.some(v => v.fullName === fullName)) {
-      showToast('Этот ветеран уже есть в списке!', 'error');
+      showToast('Этот ветеран уже есть!', 'error');
       return;
     }
-
     const url = SCRIPT_URLS[category];
-    if (!url) {
-      showToast('Ошибка: URL скрипта не найден', 'error');
-      return;
-    }
+    if (!url) { showToast('Ошибка: URL скрипта', 'error'); return; }
 
-    // Создаём временную форму для отправки (без CORS)
+    // Создаём форму и отправляем
     const form = document.createElement('form');
     form.method = 'POST';
     form.action = url;
     form.target = 'hidden_iframe';
     form.style.display = 'none';
+    form.enctype = 'multipart/form-data';  // важно для файлов
 
-    // Поля формы: action, fullName, lastName, firstName, middleName, category, representative, biography, photo, date
     const fields = {
       action: 'add',
-      fullName: fullName,
-      lastName: lastName,
-      firstName: firstName,
-      middleName: middleName || '',
-      category: category,
+      fullName, lastName, firstName, middleName: middleName || '',
+      category,
       representative: representative || 'Не указан',
       biography: biography || 'Нет описания',
       photo: currentPhotoBase64 || '',
       date: new Date().toISOString()
     };
-
-    for (const [key, value] of Object.entries(fields)) {
-      const input = document.createElement('input');
-      input.type = 'hidden';
-      input.name = key;
-      input.value = value;
-      form.appendChild(input);
+    for (const [k, v] of Object.entries(fields)) {
+      const inp = document.createElement('input');
+      inp.type = 'hidden';
+      inp.name = k;
+      inp.value = v;
+      form.appendChild(inp);
     }
 
-    // Создаём/находим iframe
     let iframe = document.getElementById('hidden_iframe');
     if (!iframe) {
       iframe = document.createElement('iframe');
@@ -234,10 +229,9 @@
       iframe.style.display = 'none';
       document.body.appendChild(iframe);
     }
-
-    iframe.onload = function() {
-      showToast('Ветеран успешно добавлен!', 'success');
-      // Добавляем в кеш
+    iframe.onload = () => {
+      showToast('Ветеран добавлен!', 'success');
+      // Добавляем в локальный кеш
       allVeterans.unshift({
         fullName, lastName, firstName, middleName, category,
         representative: representative || 'Не указан',
@@ -249,27 +243,21 @@
       renderList();
       clearForm();
     };
-
     document.body.appendChild(form);
     form.submit();
-    setTimeout(() => {
-      if (form.parentNode) form.parentNode.removeChild(form);
-    }, 1000);
+    setTimeout(() => form.remove(), 1000);
   }
 
   function clearForm() {
-    document.getElementById('lastName').value = '';
-    document.getElementById('firstName').value = '';
-    document.getElementById('middleName').value = '';
-    document.getElementById('representative').value = '';
-    document.getElementById('biography').value = '';
-    document.getElementById('category').value = '';
-    document.getElementById('photoInput').value = '';
+    ['lastName','firstName','middleName','representative','biography','category','photoInput'].forEach(id => {
+      const el = document.getElementById(id);
+      if (el && el.type !== 'file') el.value = '';
+      else if (el && el.type === 'file') el.value = '';
+    });
     document.getElementById('photoPreview').innerHTML = '';
     currentPhotoBase64 = null;
   }
 
-  // Фото
   function handlePhotoUpload() {
     const file = document.getElementById('photoInput').files[0];
     if (!file) return;
@@ -285,46 +273,34 @@
   function renderList() {
     const container = document.getElementById('list');
     if (!filteredVeterans.length) {
-      container.innerHTML = `<div class="empty-list"><i class="fas fa-tree"></i> Пока никого нет. Будьте первым!</div>`;
+      container.innerHTML = '<div class="empty-list"><i class="fas fa-tree"></i> Пока никого нет. Будьте первым!</div>';
       return;
     }
-    container.innerHTML = filteredVeterans.slice(0, 150).map(item => {
-      const photoHtml = item.photoUrl ?
-        `<img src="${item.photoUrl}" onclick="event.stopPropagation(); openModal('${item.photoUrl}')">` :
-        `<div style="width:100%;height:100%;display:flex;align-items:center;justify-content:center;"><i class="fas fa-user-circle"></i></div>`;
-      return `
-        <div class="veteran-card" onclick="openModal('${item.photoUrl || ''}')">
-          <div class="veteran-photo">${photoHtml}</div>
-          <div class="veteran-info">
-            <div class="veteran-name">
-              <span><i class="fas fa-medal"></i> ${escapeHtml(item.fullName)}</span>
-              <span class="veteran-category">${escapeHtml(item.category)}</span>
-            </div>
-            <div class="representative"><i class="fas fa-user-check"></i> ${escapeHtml(item.representative)}</div>
-            <div class="bio-short"><i class="fas fa-book-open"></i> ${escapeHtml((item.biography || 'Нет описания').substring(0, 110))}</div>
-          </div>
+    container.innerHTML = filteredVeterans.slice(0, 150).map(item => `
+      <div class="veteran-card" onclick="openModal('${item.photoUrl || ''}')">
+        <div class="veteran-photo">${item.photoUrl ? `<img src="${item.photoUrl}">` : '<div style="height:100%;display:flex;align-items:center;justify-content:center;"><i class="fas fa-user-circle"></i></div>'}</div>
+        <div class="veteran-info">
+          <div class="veteran-name"><span><i class="fas fa-medal"></i> ${escapeHtml(item.fullName)}</span><span class="veteran-category">${escapeHtml(item.category)}</span></div>
+          <div class="representative"><i class="fas fa-user-check"></i> ${escapeHtml(item.representative)}</div>
+          <div class="bio-short"><i class="fas fa-book-open"></i> ${escapeHtml((item.biography || 'Нет описания').substring(0, 110))}</div>
         </div>
-      `;
-    }).join('');
+      </div>
+    `).join('');
   }
 
-  function filterList(query) {
-    const lower = query.toLowerCase();
-    if (!lower) {
-      filteredVeterans = [...allVeterans];
-    } else {
-      filteredVeterans = allVeterans.filter(item =>
-        (item.fullName || '').toLowerCase().includes(lower) ||
-        (item.biography || '').toLowerCase().includes(lower) ||
-        (item.representative || '').toLowerCase().includes(lower)
-      );
-    }
+  function filterList(q) {
+    const lower = q.toLowerCase();
+    filteredVeterans = lower ? allVeterans.filter(v => 
+      (v.fullName+'').toLowerCase().includes(lower) ||
+      (v.biography+'').toLowerCase().includes(lower) ||
+      (v.representative+'').toLowerCase().includes(lower)
+    ) : [...allVeterans];
     renderList();
   }
 
   function openModal(url) { if (url) { document.getElementById('modalImage').src = url; document.getElementById('photoModal').classList.add('active'); } }
   function closeModal() { document.getElementById('photoModal').classList.remove('active'); }
-  function escapeHtml(str) { if (!str) return ''; return str.replace(/[&<>]/g, m => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;' }[m] || m)); }
+  function escapeHtml(s) { return (s||'').replace(/[&<>]/g, m => ({ '&':'&amp;', '<':'&lt;', '>':'&gt;' }[m])); }
   function showToast(msg, type) { const t = document.getElementById('toast'); t.textContent = msg; t.className = `toast show ${type}`; setTimeout(() => t.classList.remove('show'), 3000); }
 
   window.submitForm = submitForm;
