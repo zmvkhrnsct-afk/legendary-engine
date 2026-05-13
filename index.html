@@ -396,7 +396,7 @@
       });
     } catch(e) { /* no-cors не даёт прочитать ответ, но запрос уходит */ }
 
-    // Оптимистичное добавление (фото будет видно после перезагрузки)
+    // Оптимистичное добавление
     allVeterans.unshift({
       fullName, lastName, firstName, middleName, category,
       representative: representative || 'Не указан',
@@ -429,7 +429,7 @@
     container.innerHTML = filteredVeterans.slice(0, 150).map(item => `
       <div class="veteran-card">
         <div class="veteran-photo">
-          ${item.photoUrl ? `<img src="${item.photoUrl}" loading="lazy">` : '<i class="fas fa-user-circle fa-2x"></i>'}
+          ${item.photoUrl ? `<img src="${item.photoUrl}" loading="lazy" onerror="this.style.display='none'; this.parentElement.innerHTML='<i class=\'fas fa-user-circle fa-2x\'></i>';">` : '<i class="fas fa-user-circle fa-2x"></i>'}
         </div>
         <div class="veteran-info">
           <div class="veteran-name">
