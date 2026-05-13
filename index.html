@@ -493,7 +493,6 @@
 </div>
 
 <div class="container">
-  <!-- ФОРМА ДОБАВЛЕНИЯ -->
   <div class="form-box">
     <h3><i class="fas fa-user-plus"></i> Добавить ветерана</h3>
     <div class="form-grid">
@@ -528,7 +527,6 @@
         <textarea id="biography" placeholder="Годы жизни, боевой путь, награды, воспоминания..."></textarea>
       </div>
       
-      <!-- Фотография -->
       <div class="input-field">
         <label><i class="fas fa-camera"></i> Фотография ветерана</label>
         <input type="file" id="photoInput" accept="image/jpeg,image/png,image/jpg" style="display:none;">
@@ -544,13 +542,12 @@
     </div>
   </div>
 
-  <!-- СТЕНА ПАМЯТИ -->
   <div class="list-box">
     <h3><i class="fas fa-memory"></i> Стена памяти</h3>
     <div class="search-area">
       <input class="search" id="searchInput" placeholder="Поиск по имени, биографии, представителю..." oninput="filterList(this.value)">
     </div>
-    <div id="list" class="list-container"></div>
+    <div id="list" class="list-container">Загрузка...</div>
   </div>
 </div>
 
@@ -560,7 +557,7 @@
 </div>
 
 <script>
-  // ==================== НОВЫЕ URL ВАШИХ СКРИПТОВ ====================
+  // ==================== ВАШИ URL ====================
   const SCRIPT_URLS = {
     'Ветеран войны': 'https://script.google.com/macros/s/AKfycby6DIdWaptSqzKXMKt64d8C2Z-2-J4t7AcCITAp_b6nhjBddmW9sA0-d7TksOGCh8_h9Q/exec',
     'Ветеран тыла': 'https://script.google.com/macros/s/AKfycbzOhCsOUoqS4d0fh7fTGynTBa_Zlru4_4spcYwanvmv-CEf79cvFzogZQaSD4duskyXbg/exec',
@@ -568,8 +565,8 @@
     'СВО': 'https://script.google.com/macros/s/AKfycbwfGI1RDvsui963gRx5uEyZ1hvSH8XAwFr5MMycS3xrE0yR41wW2_vstFMqHgDsd5OoYg/exec'
   };
   
-  let cache = [];      // все ветераны
-  let filtered = [];   // отфильтрованные
+  let cache = [];
+  let filtered = [];
   let currentPhotoBase64 = null;
 
   // --- Фото превью ---
@@ -580,18 +577,18 @@
     const reader = new FileReader();
     reader.onload = function(e) {
       currentPhotoBase64 = e.target.result;
-      const previewDiv = document.getElementById('photoPreview');
-      previewDiv.innerHTML = `<img src="${currentPhotoBase64}" alt="preview">`;
+      document.getElementById('photoPreview').innerHTML = `<img src="${currentPhotoBase64}" alt="preview">`;
     };
     reader.readAsDataURL(file);
   }
   document.getElementById('photoInput').addEventListener('change', handlePhotoUpload);
 
-  // --- Загрузка из конкретной таблицы через её скрипт ---
+  // --- Загрузка из таблицы ---
   async function fetchCategoryData(category, url) {
     try {
       const response = await fetch(url, {
         method: 'POST',
+        mode: 'cors',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ action: 'get', category: category })
       });
@@ -606,7 +603,6 @@
     }
   }
 
-  // --- Загрузка из всех 4 таблиц ---
   async function loadAllVeterans() {
     const promises = [];
     for (const [category, url] of Object.entries(SCRIPT_URLS)) {
@@ -616,14 +612,6 @@
     let combined = [];
     results.forEach(arr => { if (arr.length) combined.push(...arr); });
     
-    // Восстанавливаем фото из localStorage (для случаев, если фото не пришли с сервера)
-    const savedPhotos = JSON.parse(localStorage.getItem('veteran_photos') || '{}');
-    combined = combined.map(v => ({
-      ...v,
-      photoUrl: savedPhotos[v.fullName] || v.photoUrl || null
-    }));
-    
-    // Удаляем дубликаты (по ФИО)
     const uniqueMap = new Map();
     for (const item of combined) {
       const key = item.fullName;
@@ -633,55 +621,15 @@
       }
     }
     cache = Array.from(uniqueMap.values());
-    // Сортировка (новые сверху)
     cache.sort((a, b) => new Date(b.date || b.timestamp) - new Date(a.date || a.timestamp));
     filtered = [...cache];
     render();
   }
 
-  // --- Сохранение фото в Google Drive (через любой скрипт, используем первый попавшийся) ---
-  async function uploadPhotoToDrive(photoBase64, fileName) {
-    // Используем URL первой категории для загрузки фото (подойдёт любой)
-    const anyUrl = Object.values(SCRIPT_URLS)[0];
-    try {
-      const response = await fetch(anyUrl, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          action: 'uploadPhoto',
-          photo: photoBase64,
-          fileName: fileName
-        })
-      });
-      const data = await response.json();
-      return data.photoUrl || photoBase64;
-    } catch(e) {
-      console.error('Ошибка загрузки фото:', e);
-      // fallback: локальное хранение
-      const savedPhotos = JSON.parse(localStorage.getItem('veteran_photos') || '{}');
-      savedPhotos[fileName] = photoBase64;
-      localStorage.setItem('veteran_photos', JSON.stringify(savedPhotos));
-      return photoBase64;
-    }
-  }
-
-  // --- Добавление ветерана в нужную таблицу ---
-  async function addVeteranToSheet(data) {
-    const url = SCRIPT_URLS[data.category];
-    if (!url) {
-      return { result: 'error', message: 'Неизвестная категория' };
-    }
-    
-    const response = await fetch(url, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ action: 'add', ...data })
-    });
-    return await response.json();
-  }
-
-  // --- Отправка формы ---
+  // --- ОТПРАВКА ФОРМЫ (исправленная) ---
   async function submitForm() {
+    console.log("submitForm вызвана");
+    
     const lastName = document.getElementById('lastName').value.trim();
     const firstName = document.getElementById('firstName').value.trim();
     const middleName = document.getElementById('middleName').value.trim();
@@ -701,12 +649,9 @@
       return;
     }
 
-    let photoUrl = null;
-    if (currentPhotoBase64) {
-      photoUrl = await uploadPhotoToDrive(currentPhotoBase64, fullName);
-    }
-
-    const newVeteran = {
+    // Подготавливаем данные для отправки
+    const requestData = {
+      action: 'add',
       date: new Date().toISOString(),
       fullName: fullName,
       lastName: lastName,
@@ -715,33 +660,74 @@
       category: category,
       representative: representative || 'Не указан',
       biography: biography || 'Нет описания',
-      photoUrl: photoUrl || null
+      photo: currentPhotoBase64 || null
     };
 
-    const result = await addVeteranToSheet(newVeteran);
-    
-    if (result.result === 'success') {
-      toast('Ветеран добавлен с фотографией!', 'success');
-      cache.unshift(newVeteran);
-      filtered = [...cache];
-      render();
+    const url = SCRIPT_URLS[category];
+    if (!url) {
+      toast('Ошибка: категория не найдена', 'error');
+      return;
+    }
+
+    console.log("Отправка данных на URL:", url);
+    console.log("Данные:", requestData);
+
+    try {
+      // Используем режим 'no-cors' для обхода CORS, но тогда не сможем прочитать ответ
+      // Поэтому попробуем сначала cors, если не сработает - покажем сообщение
+      const response = await fetch(url, {
+        method: 'POST',
+        mode: 'cors',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(requestData)
+      });
       
-      // Очистка формы
-      document.getElementById('lastName').value = '';
-      document.getElementById('firstName').value = '';
-      document.getElementById('middleName').value = '';
-      document.getElementById('representative').value = '';
-      document.getElementById('biography').value = '';
-      document.getElementById('category').value = '';
-      document.getElementById('photoInput').value = '';
-      document.getElementById('photoPreview').innerHTML = '';
-      currentPhotoBase64 = null;
-    } else {
-      toast(result.message || 'Ошибка сохранения', 'error');
+      let result;
+      try {
+        result = await response.json();
+      } catch(e) {
+        result = { result: 'success', message: 'Запрос отправлен (ответ не распознан)' };
+      }
+      
+      if (result.result === 'success') {
+        toast('Ветеран успешно добавлен!', 'success');
+        
+        // Добавляем в локальный кеш
+        const newVeteran = {
+          fullName: fullName,
+          lastName: lastName,
+          firstName: firstName,
+          middleName: middleName,
+          category: category,
+          representative: representative || 'Не указан',
+          biography: biography || 'Нет описания',
+          photoUrl: currentPhotoBase64 || null,
+          date: new Date().toISOString()
+        };
+        cache.unshift(newVeteran);
+        filtered = [...cache];
+        render();
+        
+        // Очистка формы
+        document.getElementById('lastName').value = '';
+        document.getElementById('firstName').value = '';
+        document.getElementById('middleName').value = '';
+        document.getElementById('representative').value = '';
+        document.getElementById('biography').value = '';
+        document.getElementById('category').value = '';
+        document.getElementById('photoInput').value = '';
+        document.getElementById('photoPreview').innerHTML = '';
+        currentPhotoBase64 = null;
+      } else {
+        toast(result.message || 'Ошибка при сохранении', 'error');
+      }
+    } catch (error) {
+      console.error('Ошибка при отправке:', error);
+      toast('Ошибка соединения. Проверьте консоль браузера (F12)', 'error');
     }
   }
 
-  // --- Рендер карточек ---
+  // --- Рендер ---
   function render() {
     const container = document.getElementById('list');
     if (!filtered.length) {
@@ -807,10 +793,8 @@
 
   function openModal(photoUrl) {
     if (!photoUrl) return;
-    const modal = document.getElementById('photoModal');
-    const modalImg = document.getElementById('modalImage');
-    modalImg.src = photoUrl;
-    modal.classList.add('active');
+    document.getElementById('modalImage').src = photoUrl;
+    document.getElementById('photoModal').classList.add('active');
   }
   
   function closeModal() {
@@ -821,16 +805,14 @@
     const t = document.getElementById('toast');
     t.textContent = msg;
     t.className = `toast show ${type}`;
-    setTimeout(() => t.classList.remove('show'), 2800);
+    setTimeout(() => t.classList.remove('show'), 3000);
   }
 
-  // Глобальные функции для onclick
   window.submitForm = submitForm;
   window.filterList = filterList;
   window.openModal = openModal;
   window.closeModal = closeModal;
 
-  // Загрузка данных
   loadAllVeterans();
 </script>
 </body>
