@@ -209,7 +209,7 @@
 <div id="photoModal" class="modal" onclick="closeModal()"><img id="modalImage" src=""></div>
 
 <script>
-  // ============ URL ВАШИХ СКРИПТОВ (ПРОВЕРЕНЫ) ============
+  // ============ URL ВАШИХ СКРИПТОВ (ПОСЛЕ РАЗВЕРТЫВАНИЯ) ============
   const SCRIPT_URLS = {
     'Ветеран войны': 'https://script.google.com/macros/s/AKfycby6DIdWaptSqzKXMKt64d8C2Z-2-J4t7AcCITAp_b6nhjBddmW9sA0-d7TksOGCh8_h9Q/exec',
     'Ветеран тыла': 'https://script.google.com/macros/s/AKfycbzOhCsOUoqS4d0fh7fTGynTBa_Zlru4_4spcYwanvmv-CEf79cvFzogZQaSD4duskyXbg/exec',
@@ -222,10 +222,10 @@
   let currentPhotoBase64 = null;
   let isLoading = false;
 
-  // ============ ЗАГРУЗКА ДАННЫХ (JSONP - обход CORS) ============
+  // ============ ЗАГРУЗКА ЧЕРЕЗ JSONP ============
   function loadCategoryData(url, category) {
     return new Promise((resolve) => {
-      const callbackName = 'jsonp_callback_' + Date.now() + '_' + Math.random().toString(36).substr(2, 8);
+      const callbackName = 'jsonp_' + Date.now() + '_' + Math.random().toString(36).substr(2, 8);
       window[callbackName] = function(response) {
         delete window[callbackName];
         if (response && response.result === 'success' && Array.isArray(response.list)) {
@@ -273,7 +273,7 @@
     isLoading = false;
   }
 
-  // ============ ДОБАВЛЕНИЕ ВЕТЕРАНА ============
+  // ============ ДОБАВЛЕНИЕ (через POST с получением ответа, CORS не мешает) ============
   async function submitForm() {
     const lastName = document.getElementById('lastName').value.trim();
     const firstName = document.getElementById('firstName').value.trim();
@@ -315,28 +315,33 @@
     showToast('Отправка...', 'success');
 
     try {
-      // Используем fetch с режимом no-cors (ответ не читаем, но запрос уходит)
-      await fetch(url, {
+      // Используем обычный fetch (cors), скрипт вернёт JSON
+      const response = await fetch(url, {
         method: 'POST',
-        mode: 'no-cors',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(data)
       });
-      showToast('Ветеран успешно добавлен!', 'success');
-      // Добавляем в локальный кеш
-      allVeterans.unshift({
-        fullName, lastName, firstName, middleName, category,
-        representative: representative || 'Не указан',
-        biography: biography || 'Нет описания',
-        photoUrl: currentPhotoBase64 || null,
-        date: new Date().toISOString()
-      });
-      filteredVeterans = [...allVeterans];
-      renderList();
-      clearForm();
+      const result = await response.json();
+      if (result.result === 'success') {
+        showToast('Ветеран успешно добавлен!', 'success');
+        // Добавляем в кеш
+        allVeterans.unshift({
+          fullName, lastName, firstName, middleName, category,
+          representative: representative || 'Не указан',
+          biography: biography || 'Нет описания',
+          photoUrl: currentPhotoBase64 || null,
+          date: new Date().toISOString()
+        });
+        filteredVeterans = [...allVeterans];
+        renderList();
+        clearForm();
+      } else {
+        showToast(result.message || 'Ошибка добавления', 'error');
+      }
     } catch (error) {
-      // При no-cors ошибка часто возникает, но запрос всё равно уходит
-      showToast('Ветеран добавлен! Обновите страницу для просмотра', 'success');
+      console.error('Ошибка:', error);
+      showToast('Ошибка соединения, но проверьте таблицу – возможно запись добавилась', 'error');
+      // Всё равно добавим в кеш, чтобы пользователь видел
       allVeterans.unshift({
         fullName, lastName, firstName, middleName, category,
         representative: representative || 'Не указан',
@@ -362,7 +367,6 @@
     currentPhotoBase64 = null;
   }
 
-  // ============ ВСПОМОГАТЕЛЬНЫЕ ФУНКЦИИ ============
   function handlePhotoUpload() {
     const file = document.getElementById('photoInput').files[0];
     if (!file) return;
