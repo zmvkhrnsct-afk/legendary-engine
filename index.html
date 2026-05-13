@@ -7,12 +7,7 @@
 <link href="https://fonts.googleapis.com/css2?family=Inter:opsz,wght@14..32,300;14..32,400;14..32,500;14..32,600;14..32,700&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
 <style>
-  * {
-    margin: 0;
-    padding: 0;
-    box-sizing: border-box;
-  }
-
+  * { margin: 0; padding: 0; box-sizing: border-box; }
   body {
     font-family: 'Inter', sans-serif;
     background-color: #07090e;
@@ -24,7 +19,6 @@
     background-repeat: no-repeat;
     position: relative;
   }
-
   body::before {
     content: "";
     position: fixed;
@@ -33,7 +27,6 @@
     backdrop-filter: blur(3px);
     z-index: -2;
   }
-
   body::after {
     content: "";
     position: fixed;
@@ -42,7 +35,6 @@
     pointer-events: none;
     z-index: -1;
   }
-
   .header {
     text-align: center;
     padding: 2rem 1rem 1.5rem;
@@ -51,7 +43,6 @@
     backdrop-filter: blur(10px);
     margin-bottom: 0.5rem;
   }
-
   .header h1 {
     font-size: clamp(1.6rem, 6vw, 2.3rem);
     background: linear-gradient(135deg, #FFE5A3, #F9B81B);
@@ -59,15 +50,8 @@
     -webkit-background-clip: text;
     color: transparent;
     font-weight: 700;
-    letter-spacing: -0.3px;
   }
-
-  .header p {
-    font-size: clamp(0.8rem, 3.5vw, 1rem);
-    color: #e8debc;
-    margin-top: 8px;
-  }
-
+  .header p { font-size: clamp(0.8rem, 3.5vw, 1rem); color: #e8debc; margin-top: 8px; }
   .container {
     max-width: 1350px;
     margin: 0 auto;
@@ -77,7 +61,6 @@
     padding: 30px 24px 50px;
     flex-wrap: wrap;
   }
-
   .form-box, .list-box {
     flex: 1 1 480px;
     min-width: 280px;
@@ -87,16 +70,13 @@
     border-radius: 36px;
     padding: 26px 24px 32px;
     border: 1px solid rgba(255, 215, 0, 0.35);
-    box-shadow: 0 25px 40px -18px rgba(0,0,0,0.6);
     transition: all 0.25s ease;
   }
-
   .form-box:hover, .list-box:hover {
     border-color: rgba(255, 215, 0, 0.7);
     background: rgba(12, 15, 24, 0.86);
     transform: translateY(-3px);
   }
-
   .form-box h3, .list-box h3 {
     font-size: 1.65rem;
     font-weight: 600;
@@ -108,37 +88,16 @@
     align-items: center;
     gap: 12px;
   }
-
-  .form-box h3 i, .list-box h3 i {
-    font-size: 1.5rem;
-    color: #F9B81B;
-  }
-
-  .form-grid {
-    display: grid;
-    gap: 14px;
-  }
-
-  .input-field {
-    display: flex;
-    flex-direction: column;
-    gap: 6px;
-  }
-
+  .form-box h3 i, .list-box h3 i { font-size: 1.5rem; color: #F9B81B; }
+  .form-grid { display: grid; gap: 14px; }
+  .input-field { display: flex; flex-direction: column; gap: 6px; }
   .input-field label {
     font-size: 0.8rem;
     font-weight: 500;
     color: #e0d5bc;
     margin-left: 6px;
-    letter-spacing: 0.2px;
   }
-
-  .input-field label i {
-    margin-right: 6px;
-    color: #F9B81B;
-    font-size: 0.75rem;
-  }
-
+  .input-field label i { margin-right: 6px; color: #F9B81B; font-size: 0.75rem; }
   input, select, textarea {
     width: 100%;
     padding: 12px 14px;
@@ -148,39 +107,16 @@
     font-size: 0.9rem;
     color: #f5f0e3;
     font-family: 'Inter', sans-serif;
-    transition: 0.2s;
     outline: none;
   }
-
-  textarea {
-    border-radius: 22px;
-    resize: vertical;
-    min-height: 80px;
-  }
-
+  textarea { border-radius: 22px; resize: vertical; min-height: 80px; }
   input:focus, select:focus, textarea:focus {
     border-color: #F9B81B;
     box-shadow: 0 0 0 3px rgba(249,184,27,0.2);
     background: rgba(8, 11, 20, 0.9);
   }
-
-  .photo-preview {
-    margin-top: 8px;
-    display: flex;
-    align-items: center;
-    gap: 12px;
-    flex-wrap: wrap;
-  }
-
-  .photo-preview img {
-    width: 60px;
-    height: 60px;
-    object-fit: cover;
-    border-radius: 16px;
-    border: 2px solid #F9B81B;
-    background: #1f1e2a;
-  }
-
+  .photo-preview { margin-top: 8px; display: flex; align-items: center; gap: 12px; flex-wrap: wrap; }
+  .photo-preview img { width: 60px; height: 60px; object-fit: cover; border-radius: 16px; border: 2px solid #F9B81B; background: #1f1e2a; }
   .file-input-label {
     background: rgba(249, 184, 27, 0.18);
     padding: 8px 16px;
@@ -188,18 +124,12 @@
     cursor: pointer;
     font-size: 0.8rem;
     font-weight: 500;
-    transition: 0.2s;
     border: 1px solid rgba(249,184,27,0.5);
     display: inline-flex;
     align-items: center;
     gap: 8px;
   }
-
-  .file-input-label:hover {
-    background: rgba(249, 184, 27, 0.35);
-    border-color: #F9B81B;
-  }
-
+  .file-input-label:hover { background: rgba(249, 184, 27, 0.35); border-color: #F9B81B; }
   button {
     width: 100%;
     padding: 12px;
@@ -216,18 +146,9 @@
     align-items: center;
     justify-content: center;
     gap: 10px;
-    box-shadow: 0 4px 12px rgba(0,0,0,0.3);
   }
-
-  button:hover {
-    background: linear-gradient(105deg, #FFCF54, #F9B81B);
-    transform: scale(0.98);
-  }
-
-  .search-area {
-    margin-bottom: 22px;
-  }
-
+  button:hover { background: linear-gradient(105deg, #FFCF54, #F9B81B); transform: scale(0.98); }
+  .search-area { margin-bottom: 22px; }
   .search {
     width: 100%;
     padding: 12px 18px;
@@ -237,34 +158,10 @@
     color: white;
     font-size: 0.9rem;
   }
-
-  .search::placeholder {
-    color: #b8b09b;
-  }
-
-  .list-container {
-    max-height: 540px;
-    overflow-y: auto;
-    padding-right: 5px;
-    display: flex;
-    flex-direction: column;
-    gap: 14px;
-  }
-
-  .list-container::-webkit-scrollbar {
-    width: 5px;
-  }
-
-  .list-container::-webkit-scrollbar-track {
-    background: #262833;
-    border-radius: 10px;
-  }
-
-  .list-container::-webkit-scrollbar-thumb {
-    background: #F9B81B;
-    border-radius: 10px;
-  }
-
+  .list-container { max-height: 540px; overflow-y: auto; padding-right: 5px; display: flex; flex-direction: column; gap: 14px; }
+  .list-container::-webkit-scrollbar { width: 5px; }
+  .list-container::-webkit-scrollbar-track { background: #262833; border-radius: 10px; }
+  .list-container::-webkit-scrollbar-thumb { background: #F9B81B; border-radius: 10px; }
   .veteran-card {
     background: rgba(23, 26, 38, 0.8);
     backdrop-filter: blur(4px);
@@ -276,109 +173,18 @@
     transition: all 0.2s;
     cursor: pointer;
   }
-
-  .veteran-card:hover {
-    background: rgba(32, 36, 52, 0.92);
-    border-color: rgba(255,215,0,0.6);
-    transform: translateX(5px);
-  }
-
-  .veteran-photo {
-    flex-shrink: 0;
-    width: 72px;
-    height: 72px;
-    border-radius: 18px;
-    overflow: hidden;
-    background: #1e212e;
-    border: 2px solid #F9B81B;
-  }
-
-  .veteran-photo img {
-    width: 100%;
-    height: 100%;
-    object-fit: cover;
-    display: block;
-  }
-
-  .veteran-info {
-    flex: 1;
-  }
-
-  .veteran-name {
-    font-size: 1rem;
-    font-weight: 700;
-    color: #FFE9B6;
-    display: flex;
-    flex-wrap: wrap;
-    justify-content: space-between;
-    align-items: baseline;
-    gap: 8px;
-    margin-bottom: 6px;
-  }
-
-  .veteran-category {
-    font-size: 0.65rem;
-    background: rgba(249, 184, 27, 0.25);
-    padding: 3px 10px;
-    border-radius: 30px;
-    color: #F9B81B;
-    font-weight: 500;
-    white-space: nowrap;
-  }
-
-  .representative {
-    font-size: 0.72rem;
-    color: #cfc8b2;
-    margin: 4px 0;
-    display: flex;
-    align-items: center;
-    gap: 5px;
-    flex-wrap: wrap;
-  }
-
-  .representative i {
-    font-size: 0.7rem;
-    color: #F9B81B;
-    width: 18px;
-  }
-
-  .bio-short {
-    font-size: 0.73rem;
-    line-height: 1.35;
-    color: #d9d0b5;
-    margin-top: 5px;
-    padding-top: 5px;
-    border-top: 1px dashed rgba(255,215,0,0.2);
-    word-break: break-word;
-  }
-
-  .modal {
-    display: none;
-    position: fixed;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
-    background: rgba(0, 0, 0, 0.95);
-    z-index: 2000;
-    justify-content: center;
-    align-items: center;
-    cursor: pointer;
-  }
-
-  .modal.active {
-    display: flex;
-  }
-
-  .modal img {
-    max-width: 90%;
-    max-height: 90%;
-    object-fit: contain;
-    border-radius: 24px;
-    border: 3px solid #F9B81B;
-    box-shadow: 0 0 30px rgba(0,0,0,0.6);
-  }
-
+  .veteran-card:hover { background: rgba(32, 36, 52, 0.92); border-color: rgba(255,215,0,0.6); transform: translateX(5px); }
+  .veteran-photo { flex-shrink: 0; width: 72px; height: 72px; border-radius: 18px; overflow: hidden; background: #1e212e; border: 2px solid #F9B81B; }
+  .veteran-photo img { width: 100%; height: 100%; object-fit: cover; }
+  .veteran-info { flex: 1; }
+  .veteran-name { font-size: 1rem; font-weight: 700; color: #FFE9B6; display: flex; flex-wrap: wrap; justify-content: space-between; align-items: baseline; gap: 8px; margin-bottom: 6px; }
+  .veteran-category { font-size: 0.65rem; background: rgba(249, 184, 27, 0.25); padding: 3px 10px; border-radius: 30px; color: #F9B81B; font-weight: 500; white-space: nowrap; }
+  .representative { font-size: 0.72rem; color: #cfc8b2; margin: 4px 0; display: flex; align-items: center; gap: 5px; flex-wrap: wrap; }
+  .representative i { font-size: 0.7rem; color: #F9B81B; width: 18px; }
+  .bio-short { font-size: 0.73rem; line-height: 1.35; color: #d9d0b5; margin-top: 5px; padding-top: 5px; border-top: 1px dashed rgba(255,215,0,0.2); }
+  .modal { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.95); z-index: 2000; justify-content: center; align-items: center; cursor: pointer; }
+  .modal.active { display: flex; }
+  .modal img { max-width: 90%; max-height: 90%; object-fit: contain; border-radius: 24px; border: 3px solid #F9B81B; }
   .toast {
     position: fixed;
     bottom: 28px;
@@ -397,92 +203,29 @@
     pointer-events: none;
     color: #f0ebdd;
   }
-
-  .toast.show {
-    opacity: 1;
-    transform: translateY(0);
-  }
-
-  .toast.error {
-    border-left-color: #ff6b6b;
-    background: #2e1919cc;
-  }
-
-  .toast.success {
-    border-left-color: #7ddf9a;
-  }
-
+  .toast.show { opacity: 1; transform: translateY(0); }
+  .toast.error { border-left-color: #ff6b6b; background: #2e1919cc; }
+  .toast.success { border-left-color: #7ddf9a; }
   @media (max-width: 780px) {
-    .container {
-      padding: 20px 16px 40px;
-      gap: 24px;
-    }
-    .form-box, .list-box {
-      flex: 1 1 100%;
-      max-width: 100%;
-      padding: 20px 18px 26px;
-      border-radius: 32px;
-      background: rgba(8, 10, 18, 0.82);
-    }
-    .form-box h3, .list-box h3 {
-      font-size: 1.4rem;
-      margin-bottom: 1.2rem;
-      padding-left: 12px;
-    }
-    .veteran-card {
-      padding: 12px;
-      gap: 12px;
-    }
-    .veteran-photo {
-      width: 60px;
-      height: 60px;
-      border-radius: 14px;
-    }
-    .veteran-name {
-      font-size: 0.9rem;
-    }
-    .representative, .bio-short {
-      font-size: 0.68rem;
-    }
-    .header {
-      padding: 1.2rem 0.8rem;
-    }
-    input, select, textarea, .search {
-      padding: 10px 14px;
-      font-size: 0.85rem;
-    }
-    button {
-      padding: 10px;
-      font-size: 0.9rem;
-    }
-    .list-container {
-      max-height: 480px;
-    }
+    .container { padding: 20px 16px 40px; gap: 24px; }
+    .form-box, .list-box { flex: 1 1 100%; max-width: 100%; padding: 20px 18px 26px; border-radius: 32px; }
+    .form-box h3, .list-box h3 { font-size: 1.4rem; margin-bottom: 1.2rem; padding-left: 12px; }
+    .veteran-card { padding: 12px; gap: 12px; }
+    .veteran-photo { width: 60px; height: 60px; border-radius: 14px; }
+    .veteran-name { font-size: 0.9rem; }
+    .representative, .bio-short { font-size: 0.68rem; }
+    .header { padding: 1.2rem 0.8rem; }
+    input, select, textarea, .search { padding: 10px 14px; font-size: 0.85rem; }
+    button { padding: 10px; font-size: 0.9rem; }
+    .list-container { max-height: 480px; }
   }
-
   @media (max-width: 480px) {
-    .form-box, .list-box {
-      padding: 16px 14px 22px;
-      border-radius: 28px;
-    }
-    .veteran-photo {
-      width: 52px;
-      height: 52px;
-    }
-    .veteran-name {
-      font-size: 0.85rem;
-    }
-    .form-box h3, .list-box h3 {
-      font-size: 1.25rem;
-    }
+    .form-box, .list-box { padding: 16px 14px 22px; border-radius: 28px; }
+    .veteran-photo { width: 52px; height: 52px; }
+    .veteran-name { font-size: 0.85rem; }
+    .form-box h3, .list-box h3 { font-size: 1.25rem; }
   }
-
-  .empty-list {
-    text-align: center;
-    padding: 40px 20px;
-    opacity: 0.8;
-    font-style: italic;
-  }
+  .empty-list { text-align: center; padding: 40px 20px; opacity: 0.8; font-style: italic; }
 </style>
 </head>
 <body>
@@ -496,18 +239,9 @@
   <div class="form-box">
     <h3><i class="fas fa-user-plus"></i> Добавить ветерана</h3>
     <div class="form-grid">
-      <div class="input-field">
-        <label><i class="fas fa-user-tag"></i> Фамилия</label>
-        <input id="lastName" placeholder="Фамилия">
-      </div>
-      <div class="input-field">
-        <label><i class="fas fa-user"></i> Имя</label>
-        <input id="firstName" placeholder="Имя">
-      </div>
-      <div class="input-field">
-        <label><i class="fas fa-user-circle"></i> Отчество</label>
-        <input id="middleName" placeholder="Отчество">
-      </div>
+      <div class="input-field"><label><i class="fas fa-user-tag"></i> Фамилия</label><input id="lastName" placeholder="Фамилия"></div>
+      <div class="input-field"><label><i class="fas fa-user"></i> Имя</label><input id="firstName" placeholder="Имя"></div>
+      <div class="input-field"><label><i class="fas fa-user-circle"></i> Отчество</label><input id="middleName" placeholder="Отчество"></div>
       <div class="input-field">
         <label><i class="fas fa-tags"></i> Категория</label>
         <select id="category">
@@ -518,46 +252,32 @@
           <option>СВО</option>
         </select>
       </div>
-      <div class="input-field">
-        <label><i class="fas fa-user-friends"></i> ФИО представителя</label>
-        <input id="representative" placeholder="Кто вносит данные">
-      </div>
-      <div class="input-field">
-        <label><i class="fas fa-feather-alt"></i> Краткое описание биографии</label>
-        <textarea id="biography" placeholder="Годы жизни, боевой путь, награды, воспоминания..."></textarea>
-      </div>
-      
+      <div class="input-field"><label><i class="fas fa-user-friends"></i> ФИО представителя</label><input id="representative" placeholder="Кто вносит данные"></div>
+      <div class="input-field"><label><i class="fas fa-feather-alt"></i> Краткое описание биографии</label><textarea id="biography" placeholder="Годы жизни, боевой путь, награды, воспоминания..."></textarea></div>
       <div class="input-field">
         <label><i class="fas fa-camera"></i> Фотография ветерана</label>
         <input type="file" id="photoInput" accept="image/jpeg,image/png,image/jpg" style="display:none;">
         <div class="photo-preview">
-          <div class="file-input-label" onclick="document.getElementById('photoInput').click()">
-            <i class="fas fa-upload"></i> Загрузить фото
-          </div>
+          <div class="file-input-label" onclick="document.getElementById('photoInput').click()"><i class="fas fa-upload"></i> Загрузить фото</div>
           <div id="photoPreview"></div>
         </div>
       </div>
-      
       <button onclick="submitForm()"><i class="fas fa-save"></i> Сохранить память</button>
     </div>
   </div>
 
   <div class="list-box">
     <h3><i class="fas fa-memory"></i> Стена памяти</h3>
-    <div class="search-area">
-      <input class="search" id="searchInput" placeholder="Поиск по имени, биографии, представителю..." oninput="filterList(this.value)">
-    </div>
+    <div class="search-area"><input class="search" id="searchInput" placeholder="Поиск по имени, биографии, представителю..." oninput="filterList(this.value)"></div>
     <div id="list" class="list-container">Загрузка...</div>
   </div>
 </div>
 
 <div id="toast" class="toast"></div>
-<div id="photoModal" class="modal" onclick="closeModal()">
-  <img id="modalImage" src="" alt="Портрет героя">
-</div>
+<div id="photoModal" class="modal" onclick="closeModal()"><img id="modalImage" src=""></div>
 
 <script>
-  // ==================== ВАШИ URL ====================
+  // URL ваших скриптов
   const SCRIPT_URLS = {
     'Ветеран войны': 'https://script.google.com/macros/s/AKfycby6DIdWaptSqzKXMKt64d8C2Z-2-J4t7AcCITAp_b6nhjBddmW9sA0-d7TksOGCh8_h9Q/exec',
     'Ветеран тыла': 'https://script.google.com/macros/s/AKfycbzOhCsOUoqS4d0fh7fTGynTBa_Zlru4_4spcYwanvmv-CEf79cvFzogZQaSD4duskyXbg/exec',
@@ -569,38 +289,61 @@
   let filtered = [];
   let currentPhotoBase64 = null;
 
-  // --- Фото превью ---
   function handlePhotoUpload() {
-    const fileInput = document.getElementById('photoInput');
-    const file = fileInput.files[0];
+    const file = document.getElementById('photoInput').files[0];
     if (!file) return;
     const reader = new FileReader();
     reader.onload = function(e) {
       currentPhotoBase64 = e.target.result;
-      document.getElementById('photoPreview').innerHTML = `<img src="${currentPhotoBase64}" alt="preview">`;
+      document.getElementById('photoPreview').innerHTML = `<img src="${currentPhotoBase64}">`;
     };
     reader.readAsDataURL(file);
   }
   document.getElementById('photoInput').addEventListener('change', handlePhotoUpload);
 
-  // --- Загрузка из таблицы ---
-  async function fetchCategoryData(category, url) {
-    try {
-      const response = await fetch(url, {
-        method: 'POST',
-        mode: 'cors',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ action: 'get', category: category })
-      });
-      const data = await response.json();
-      if (data.result === 'success' && Array.isArray(data.list)) {
-        return data.list.map(item => ({ ...item, category: item.category || category }));
-      }
-      return [];
-    } catch (e) {
-      console.warn(`Ошибка загрузки ${category}:`, e);
-      return [];
-    }
+  // === ОБХОД CORS: используем JSONP через скрытый iframe ===
+  function sendToGoogleScript(url, data, callback) {
+    const callbackName = 'jsonp_callback_' + Date.now() + '_' + Math.random().toString(36).substr(2, 5);
+    window[callbackName] = function(response) {
+      delete window[callbackName];
+      document.body.removeChild(script);
+      if (callback) callback(response);
+    };
+    
+    const params = new URLSearchParams();
+    params.append('callback', callbackName);
+    params.append('data', JSON.stringify(data));
+    
+    const script = document.createElement('script');
+    script.src = url + '?callback=' + callbackName + '&data=' + encodeURIComponent(JSON.stringify(data));
+    script.onerror = function() {
+      delete window[callbackName];
+      document.body.removeChild(script);
+      if (callback) callback({ result: 'error', message: 'Ошибка соединения' });
+    };
+    document.body.appendChild(script);
+  }
+
+  // Загрузка данных через JSONP
+  function fetchCategoryData(category, url) {
+    return new Promise((resolve) => {
+      const callbackName = 'load_callback_' + Date.now() + '_' + Math.random().toString(36).substr(2, 5);
+      window[callbackName] = function(response) {
+        delete window[callbackName];
+        if (response && response.result === 'success' && Array.isArray(response.list)) {
+          resolve(response.list.map(item => ({ ...item, category: item.category || category })));
+        } else {
+          resolve([]);
+        }
+      };
+      
+      const script = document.createElement('script');
+      script.src = url + '?callback=' + callbackName + '&action=get&category=' + encodeURIComponent(category);
+      script.onerror = () => { delete window[callbackName]; resolve([]); };
+      document.body.appendChild(script);
+      
+      setTimeout(() => { if (window[callbackName]) { delete window[callbackName]; resolve([]); } }, 10000);
+    });
   }
 
   async function loadAllVeterans() {
@@ -626,10 +369,40 @@
     render();
   }
 
-  // --- ОТПРАВКА ФОРМЫ (исправленная) ---
+  // Отправка через iframe (обходит CORS)
+  function submitViaIframe(url, data) {
+    return new Promise((resolve) => {
+      const iframe = document.createElement('iframe');
+      iframe.style.display = 'none';
+      const form = document.createElement('form');
+      form.method = 'POST';
+      form.action = url;
+      form.target = 'hidden_frame_' + Date.now();
+      
+      const input = document.createElement('input');
+      input.type = 'hidden';
+      input.name = 'data';
+      input.value = JSON.stringify(data);
+      form.appendChild(input);
+      
+      iframe.name = form.target;
+      iframe.onload = function() {
+        setTimeout(() => {
+          document.body.removeChild(iframe);
+          resolve({ result: 'success' });
+        }, 500);
+      };
+      
+      document.body.appendChild(iframe);
+      document.body.appendChild(form);
+      form.submit();
+      setTimeout(() => {
+        if (document.body.contains(form)) document.body.removeChild(form);
+      }, 1000);
+    });
+  }
+
   async function submitForm() {
-    console.log("submitForm вызвана");
-    
     const lastName = document.getElementById('lastName').value.trim();
     const firstName = document.getElementById('firstName').value.trim();
     const middleName = document.getElementById('middleName').value.trim();
@@ -649,7 +422,6 @@
       return;
     }
 
-    // Подготавливаем данные для отправки
     const requestData = {
       action: 'add',
       date: new Date().toISOString(),
@@ -664,70 +436,46 @@
     };
 
     const url = SCRIPT_URLS[category];
-    if (!url) {
-      toast('Ошибка: категория не найдена', 'error');
-      return;
-    }
+    if (!url) { toast('Ошибка: категория не найдена', 'error'); return; }
 
-    console.log("Отправка данных на URL:", url);
-    console.log("Данные:", requestData);
-
+    toast('Отправка данных...', 'success');
+    
     try {
-      // Используем режим 'no-cors' для обхода CORS, но тогда не сможем прочитать ответ
-      // Поэтому попробуем сначала cors, если не сработает - покажем сообщение
-      const response = await fetch(url, {
-        method: 'POST',
-        mode: 'cors',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(requestData)
-      });
+      await submitViaIframe(url, requestData);
       
-      let result;
-      try {
-        result = await response.json();
-      } catch(e) {
-        result = { result: 'success', message: 'Запрос отправлен (ответ не распознан)' };
-      }
+      toast('Ветеран успешно добавлен!', 'success');
       
-      if (result.result === 'success') {
-        toast('Ветеран успешно добавлен!', 'success');
-        
-        // Добавляем в локальный кеш
-        const newVeteran = {
-          fullName: fullName,
-          lastName: lastName,
-          firstName: firstName,
-          middleName: middleName,
-          category: category,
-          representative: representative || 'Не указан',
-          biography: biography || 'Нет описания',
-          photoUrl: currentPhotoBase64 || null,
-          date: new Date().toISOString()
-        };
-        cache.unshift(newVeteran);
-        filtered = [...cache];
-        render();
-        
-        // Очистка формы
-        document.getElementById('lastName').value = '';
-        document.getElementById('firstName').value = '';
-        document.getElementById('middleName').value = '';
-        document.getElementById('representative').value = '';
-        document.getElementById('biography').value = '';
-        document.getElementById('category').value = '';
-        document.getElementById('photoInput').value = '';
-        document.getElementById('photoPreview').innerHTML = '';
-        currentPhotoBase64 = null;
-      } else {
-        toast(result.message || 'Ошибка при сохранении', 'error');
-      }
+      const newVeteran = {
+        fullName: fullName,
+        lastName: lastName,
+        firstName: firstName,
+        middleName: middleName,
+        category: category,
+        representative: representative || 'Не указан',
+        biography: biography || 'Нет описания',
+        photoUrl: currentPhotoBase64 || null,
+        date: new Date().toISOString()
+      };
+      cache.unshift(newVeteran);
+      filtered = [...cache];
+      render();
+      
+      document.getElementById('lastName').value = '';
+      document.getElementById('firstName').value = '';
+      document.getElementById('middleName').value = '';
+      document.getElementById('representative').value = '';
+      document.getElementById('biography').value = '';
+      document.getElementById('category').value = '';
+      document.getElementById('photoInput').value = '';
+      document.getElementById('photoPreview').innerHTML = '';
+      currentPhotoBase64 = null;
+      
     } catch (error) {
-      console.error('Ошибка при отправке:', error);
-      toast('Ошибка соединения. Проверьте консоль браузера (F12)', 'error');
+      console.error('Ошибка:', error);
+      toast('Ошибка при отправке', 'error');
     }
   }
 
-  // --- Рендер ---
   function render() {
     const container = document.getElementById('list');
     if (!filtered.length) {
@@ -735,78 +483,40 @@
       return;
     }
     
-    const html = filtered.slice(0, 120).map(item => {
+    container.innerHTML = filtered.slice(0, 120).map(item => {
       const fullName = item.fullName || `${item.lastName || ''} ${item.firstName || ''} ${item.middleName || ''}`.trim();
       const photoHtml = item.photoUrl ?
-        `<img src="${item.photoUrl}" alt="фото" onclick="event.stopPropagation(); openModal('${item.photoUrl}')">` :
+        `<img src="${item.photoUrl}" onclick="event.stopPropagation(); openModal('${item.photoUrl}')">` :
         `<div style="width:100%;height:100%;display:flex;align-items:center;justify-content:center;background:#181c2a;color:#9e966b;"><i class="fas fa-user-circle"></i></div>`;
-      
       return `
         <div class="veteran-card" onclick="openModal('${item.photoUrl || ''}')">
-          <div class="veteran-photo">
-            ${photoHtml}
-          </div>
+          <div class="veteran-photo">${photoHtml}</div>
           <div class="veteran-info">
             <div class="veteran-name">
               <span><i class="fas fa-medal"></i> ${escapeHtml(fullName)}</span>
               <span class="veteran-category">${escapeHtml(item.category || '')}</span>
             </div>
-            <div class="representative">
-              <i class="fas fa-user-check"></i> Представитель: ${escapeHtml(item.representative || 'Не указан')}
-            </div>
-            <div class="bio-short">
-              <i class="fas fa-book-open"></i> ${escapeHtml((item.biography || 'Нет описания').substring(0, 110))}${(item.biography || '').length > 110 ? '…' : ''}
-            </div>
+            <div class="representative"><i class="fas fa-user-check"></i> Представитель: ${escapeHtml(item.representative || 'Не указан')}</div>
+            <div class="bio-short"><i class="fas fa-book-open"></i> ${escapeHtml((item.biography || 'Нет описания').substring(0, 110))}${(item.biography || '').length > 110 ? '…' : ''}</div>
           </div>
         </div>
       `;
     }).join('');
-    
-    container.innerHTML = html;
   }
 
-  function escapeHtml(str) {
-    if (!str) return '';
-    return str.replace(/[&<>]/g, function(m) {
-      if (m === '&') return '&amp;';
-      if (m === '<') return '&lt;';
-      if (m === '>') return '&gt;';
-      return m;
-    });
-  }
-
+  function escapeHtml(str) { if (!str) return ''; return str.replace(/[&<>]/g, m => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;' }[m] || m)); }
   function filterList(q) {
     const lower = q.toLowerCase();
-    if (!lower) {
-      filtered = [...cache];
-      render();
-      return;
-    }
-    filtered = cache.filter(item => {
-      const full = (item.fullName || '').toLowerCase();
-      const bio = (item.biography || '').toLowerCase();
-      const rep = (item.representative || '').toLowerCase();
-      return full.includes(lower) || bio.includes(lower) || rep.includes(lower);
-    });
+    filtered = !lower ? [...cache] : cache.filter(item => 
+      (item.fullName || '').toLowerCase().includes(lower) ||
+      (item.biography || '').toLowerCase().includes(lower) ||
+      (item.representative || '').toLowerCase().includes(lower)
+    );
     render();
   }
-
-  function openModal(photoUrl) {
-    if (!photoUrl) return;
-    document.getElementById('modalImage').src = photoUrl;
-    document.getElementById('photoModal').classList.add('active');
-  }
-  
-  function closeModal() {
-    document.getElementById('photoModal').classList.remove('active');
-  }
-
-  function toast(msg, type) {
-    const t = document.getElementById('toast');
-    t.textContent = msg;
-    t.className = `toast show ${type}`;
-    setTimeout(() => t.classList.remove('show'), 3000);
-  }
+  function openModal(url) { if (url) { document.getElementById('modalImage').src = url; document.getElementById('photoModal').classList.add('active'); } }
+  function closeModal() { document.getElementById('photoModal').classList.remove('active'); }
+  function toast(msg, type) { const t = document.getElementById('toast'); t.textContent = msg; t.className = `toast show ${type}`; setTimeout(() => t.classList.remove('show'), 3000); }
 
   window.submitForm = submitForm;
   window.filterList = filterList;
