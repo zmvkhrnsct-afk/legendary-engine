@@ -93,6 +93,19 @@
     border-color: #F9B81B;
     box-shadow: 0 0 0 3px rgba(249,184,27,0.2);
   }
+  .photo-preview { margin-top: 8px; display: flex; align-items: center; gap: 12px; flex-wrap: wrap; }
+  .photo-preview img { width: 60px; height: 60px; object-fit: cover; border-radius: 16px; border: 2px solid #F9B81B; }
+  .file-input-label {
+    background: rgba(249,184,27,0.18);
+    padding: 8px 16px;
+    border-radius: 40px;
+    cursor: pointer;
+    font-size: 0.8rem;
+    border: 1px solid rgba(249,184,27,0.5);
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+  }
   button {
     width: 100%;
     padding: 12px;
@@ -148,12 +161,17 @@
     width: 72px;
     height: 72px;
     border-radius: 18px;
+    overflow: hidden;
     background: #1e212e;
     border: 2px solid #F9B81B;
     display: flex;
     align-items: center;
     justify-content: center;
-    color: #9e966b;
+  }
+  .veteran-photo img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
   }
   .veteran-info { flex: 1; }
   .veteran-name {
@@ -229,6 +247,14 @@
       </div>
       <div class="input-field"><label><i class="fas fa-user-friends"></i> ФИО представителя</label><input id="representative" placeholder="Кто вносит данные"></div>
       <div class="input-field"><label><i class="fas fa-feather-alt"></i> Биография</label><textarea id="biography" placeholder="Годы жизни, боевой путь, награды..."></textarea></div>
+      <div class="input-field">
+        <label><i class="fas fa-camera"></i> Фотография ветерана</label>
+        <input type="file" id="photoInput" accept="image/jpeg,image/png,image/jpg" style="display:none;">
+        <div class="photo-preview">
+          <div class="file-input-label" onclick="document.getElementById('photoInput').click()"><i class="fas fa-upload"></i> Загрузить фото</div>
+          <div id="photoPreview"></div>
+        </div>
+      </div>
       <button onclick="submitForm()"><i class="fas fa-save"></i> Сохранить память</button>
     </div>
   </div>
@@ -261,8 +287,22 @@
 
   let allVeterans = [];
   let filteredVeterans = [];
+  let currentPhotoBase64 = null;
 
-  // === Загрузка CSV через прямой экспорт (требует доступа «Любой, у кого есть ссылка») ===
+  // === Фото: предпросмотр ===
+  function handlePhotoUpload() {
+    const file = document.getElementById('photoInput').files[0];
+    if (!file) return;
+    const reader = new FileReader();
+    reader.onload = function(e) {
+      currentPhotoBase64 = e.target.result;
+      document.getElementById('photoPreview').innerHTML = `<img src="${currentPhotoBase64}">`;
+    };
+    reader.readAsDataURL(file);
+  }
+  document.getElementById('photoInput').addEventListener('change', handlePhotoUpload);
+
+  // === Загрузка CSV с фото (колонка 8) ===
   async function loadSheetCSV(sheetId, category) {
     const url = `https://docs.google.com/spreadsheets/d/${sheetId}/export?format=csv`;
     try {
@@ -273,7 +313,6 @@
       for (let i = 1; i < rows.length; i++) {
         const line = rows[i].trim();
         if (!line) continue;
-        // Простой парсинг CSV (учитываем кавычки)
         const cells = [];
         let current = '', inQuotes = false;
         for (let ch of line) {
@@ -291,7 +330,8 @@
           middleName: cells[4] || '',
           fullName: cells[5] || '',
           representative: cells[6] || 'Не указан',
-          biography: cells[7] || 'Нет описания'
+          biography: cells[7] || 'Нет описания',
+          photoUrl: cells[8] || ''
         });
       }
       return list;
@@ -314,7 +354,7 @@
     showToast(`Загружено ${allVeterans.length} записей`, 'success');
   }
 
-  // === Отправка новой записи ===
+  // === Отправка новой записи с фото ===
   async function submitForm() {
     const lastName = document.getElementById('lastName').value.trim();
     const firstName = document.getElementById('firstName').value.trim();
@@ -342,6 +382,7 @@
       category,
       representative: representative || 'Не указан',
       biography: biography || 'Нет описания',
+      photo: currentPhotoBase64 || null,
       date: new Date().toISOString()
     };
 
@@ -355,24 +396,28 @@
       });
     } catch(e) { /* no-cors не даёт прочитать ответ, но запрос уходит */ }
 
-    // Оптимистичное добавление
+    // Оптимистичное добавление (фото будет видно после перезагрузки)
     allVeterans.unshift({
       fullName, lastName, firstName, middleName, category,
       representative: representative || 'Не указан',
       biography: biography || 'Нет описания',
+      photoUrl: currentPhotoBase64 || null,
       date: new Date().toISOString()
     });
     filteredVeterans = [...allVeterans];
     render();
     clearForm();
-    showToast('Ветеран добавлен!', 'success');
+    showToast('Ветеран добавлен! Фото появится после обновления страницы', 'success');
   }
 
   function clearForm() {
-    ['lastName','firstName','middleName','representative','biography','category'].forEach(id => {
+    ['lastName','firstName','middleName','representative','biography','category','photoInput'].forEach(id => {
       const el = document.getElementById(id);
-      if (el) el.value = '';
+      if (el && el.type !== 'file') el.value = '';
+      else if (el && el.type === 'file') el.value = '';
     });
+    document.getElementById('photoPreview').innerHTML = '';
+    currentPhotoBase64 = null;
   }
 
   function render() {
@@ -383,7 +428,9 @@
     }
     container.innerHTML = filteredVeterans.slice(0, 150).map(item => `
       <div class="veteran-card">
-        <div class="veteran-photo"><i class="fas fa-user-circle fa-2x"></i></div>
+        <div class="veteran-photo">
+          ${item.photoUrl ? `<img src="${item.photoUrl}" loading="lazy">` : '<i class="fas fa-user-circle fa-2x"></i>'}
+        </div>
         <div class="veteran-info">
           <div class="veteran-name">
             <span><i class="fas fa-medal"></i> ${escapeHtml(item.fullName)}</span>
