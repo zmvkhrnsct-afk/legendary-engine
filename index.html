@@ -247,15 +247,19 @@
       </div>
       <div class="input-field"><label><i class="fas fa-user-friends"></i> ФИО представителя</label><input id="representative" placeholder="Кто вносит данные"></div>
       <div class="input-field"><label><i class="fas fa-feather-alt"></i> Биография</label><textarea id="biography" placeholder="Годы жизни, боевой путь, награды..."></textarea></div>
+      
+      <!-- БЛОК ЗАГРУЗКИ ФОТО через ImgBB API -->
       <div class="input-field">
         <label><i class="fas fa-camera"></i> Фотография ветерана</label>
-        <input type="file" id="photoInput" accept="image/jpeg,image/png,image/jpg" style="display:none;">
-        <div class="photo-preview">
-          <div class="file-input-label" onclick="document.getElementById('photoInput').click()"><i class="fas fa-upload"></i> Загрузить фото</div>
-          <div id="photoPreview"></div>
+        <input type="file" id="photoFile" accept="image/jpeg,image/png,image/jpg">
+        <div class="photo-preview" id="photoPreviewContainer"></div>
+        <input type="hidden" id="photoUrl" value="">
+        <div class="helper-text" style="font-size:0.7rem; color:#aaa; margin-top:4px;">
+          <i class="fas fa-info-circle"></i> Фото автоматически загрузится после выбора файла
         </div>
       </div>
-      <button onclick="submitForm()"><i class="fas fa-save"></i> Сохранить память</button>
+      
+      <button id="submitBtn"><i class="fas fa-save"></i> Сохранить память</button>
     </div>
   </div>
 
@@ -269,7 +273,12 @@
 <div id="toast" class="toast"></div>
 
 <script>
-  // === ID таблиц (ваши) ===
+  // ==================== НАСТРОЙКИ IMGBB ====================
+  const IMGBB_API_KEY = 'a9fdca629f141242a3b2370dbdd1f718';
+  const IMGBB_UPLOAD_URL = 'https://api.imgbb.com/1/upload';
+  // ========================================================
+
+  // === ID ваших Google таблиц ===
   const SHEET_IDS = {
     'Ветеран войны': '1-OnrHFAPWErVmV599WSEmVkdyPko2aZy266abJVsVMg',
     'Ветеран тыла': '1I_7fp0x4suK_jmrDnhP37rAdCLYJRSq6rauEfKZEg3Q',
@@ -277,7 +286,7 @@
     'СВО': '1VzCJ54lqfmwTMBJuKu2jJ9rLAwJodLi3QCV_q32y0qM'
   };
 
-  // === URL скриптов для добавления ===
+  // === URL ваших Apps Script ===
   const SCRIPT_URLS = {
     'Ветеран войны': 'https://script.google.com/macros/s/AKfycby6DIdWaptSqzKXMKt64d8C2Z-2-J4t7AcCITAp_b6nhjBddmW9sA0-d7TksOGCh8_h9Q/exec',
     'Ветеран тыла': 'https://script.google.com/macros/s/AKfycbzOhCsOUoqS4d0fh7fTGynTBa_Zlru4_4spcYwanvmv-CEf79cvFzogZQaSD4duskyXbg/exec',
@@ -287,22 +296,66 @@
 
   let allVeterans = [];
   let filteredVeterans = [];
-  let currentPhotoBase64 = null;
+  let currentPhotoUploading = false;
 
-  // === Фото: предпросмотр ===
-  function handlePhotoUpload() {
-    const file = document.getElementById('photoInput').files[0];
+  // === ЗАГРУЗКА ФОТО НА IMGBB ===
+  async function uploadPhotoToImgBB(file) {
+    const formData = new FormData();
+    formData.append('key', IMGBB_API_KEY);
+    formData.append('image', file);
+    formData.append('expiration', '600'); // 10 минут для теста, можно убрать или увеличить
+
+    try {
+      const response = await fetch(IMGBB_UPLOAD_URL, {
+        method: 'POST',
+        body: formData
+      });
+      const data = await response.json();
+      if (data && data.data && data.data.url) {
+        return data.data.url;
+      } else if (data && data.data && data.data.display_url) {
+        return data.data.display_url;
+      } else {
+        throw new Error(data.error?.message || 'Не удалось получить URL фото');
+      }
+    } catch (error) {
+      console.error('Ошибка загрузки фото на ImgBB:', error);
+      showToast('Ошибка загрузки фото. Попробуйте позже.', 'error');
+      return null;
+    }
+  }
+
+  // === ОБРАБОТЧИК ВЫБОРА ФАЙЛА ===
+  document.getElementById('photoFile').addEventListener('change', async function(e) {
+    const file = e.target.files[0];
     if (!file) return;
+
+    // Проверка размера (ImgBB принимает до 32MB)
+    if (file.size > 32 * 1024 * 1024) {
+      showToast('Файл слишком большой. Максимум 32MB.', 'error');
+      return;
+    }
+
+    // Превью
     const reader = new FileReader();
-    reader.onload = function(e) {
-      currentPhotoBase64 = e.target.result;
-      document.getElementById('photoPreview').innerHTML = `<img src="${currentPhotoBase64}">`;
+    reader.onload = function(ev) {
+      const previewDiv = document.getElementById('photoPreviewContainer');
+      previewDiv.innerHTML = `<img src="${ev.target.result}" alt="preview">`;
     };
     reader.readAsDataURL(file);
-  }
-  document.getElementById('photoInput').addEventListener('change', handlePhotoUpload);
 
-  // === Загрузка CSV с фото (колонка 8) ===
+    // Загрузка
+    currentPhotoUploading = true;
+    showToast('Загрузка фото на сервер...', 'success');
+    const photoUrl = await uploadPhotoToImgBB(file);
+    if (photoUrl) {
+      document.getElementById('photoUrl').value = photoUrl;
+      showToast('Фото успешно загружено!', 'success');
+    }
+    currentPhotoUploading = false;
+  });
+
+  // === ЗАГРУЗКА ДАННЫХ ИЗ ТАБЛИЦ (CSV) ===
   async function loadSheetCSV(sheetId, category) {
     const url = `https://docs.google.com/spreadsheets/d/${sheetId}/export?format=csv`;
     try {
@@ -354,7 +407,7 @@
     showToast(`Загружено ${allVeterans.length} записей`, 'success');
   }
 
-  // === Отправка новой записи с фото ===
+  // === ОТПРАВКА НОВОЙ ЗАПИСИ В GOOGLE SHEETS ===
   async function submitForm() {
     const lastName = document.getElementById('lastName').value.trim();
     const firstName = document.getElementById('firstName').value.trim();
@@ -362,6 +415,7 @@
     const category = document.getElementById('category').value;
     const representative = document.getElementById('representative').value.trim();
     const biography = document.getElementById('biography').value.trim();
+    const photoUrl = document.getElementById('photoUrl').value.trim();
 
     if (!lastName || !firstName || !category) {
       showToast('Заполните фамилию, имя и категорию', 'error');
@@ -370,6 +424,11 @@
     const fullName = `${lastName} ${firstName} ${middleName}`.trim().replace(/\s+/g, ' ');
     if (allVeterans.some(v => v.fullName === fullName)) {
       showToast('Этот ветеран уже есть!', 'error');
+      return;
+    }
+
+    if (currentPhotoUploading) {
+      showToast('Подождите, фото ещё загружается...', 'error');
       return;
     }
 
@@ -382,7 +441,7 @@
       category,
       representative: representative || 'Не указан',
       biography: biography || 'Нет описания',
-      photo: currentPhotoBase64 || null,
+      photoUrl: photoUrl,
       date: new Date().toISOString()
     };
 
@@ -396,28 +455,26 @@
       });
     } catch(e) { /* no-cors не даёт прочитать ответ, но запрос уходит */ }
 
-    // Оптимистичное добавление
     allVeterans.unshift({
       fullName, lastName, firstName, middleName, category,
       representative: representative || 'Не указан',
       biography: biography || 'Нет описания',
-      photoUrl: currentPhotoBase64 || null,
+      photoUrl: photoUrl,
       date: new Date().toISOString()
     });
     filteredVeterans = [...allVeterans];
     render();
     clearForm();
-    showToast('Ветеран добавлен! Фото появится после обновления страницы', 'success');
+    showToast('Ветеран добавлен!', 'success');
   }
 
   function clearForm() {
-    ['lastName','firstName','middleName','representative','biography','category','photoInput'].forEach(id => {
+    ['lastName','firstName','middleName','representative','biography','category','photoFile','photoUrl'].forEach(id => {
       const el = document.getElementById(id);
       if (el && el.type !== 'file') el.value = '';
       else if (el && el.type === 'file') el.value = '';
     });
-    document.getElementById('photoPreview').innerHTML = '';
-    currentPhotoBase64 = null;
+    document.getElementById('photoPreviewContainer').innerHTML = '';
   }
 
   function render() {
