@@ -1,0 +1,236 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+<title>Карточка ветерана | Бессмертный полк</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:opsz,wght@14..32,300;400;500;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body {
+    font-family: 'Inter', sans-serif;
+    background-color: #07090e;
+    color: #f0f2f5;
+    background-image: url("https://avatars.mds.yandex.net/get-altay/2786941/2a000001764d11b85db4b67e6762ddc3d31b/XXL_height");
+    background-size: cover;
+    background-position: center 25%;
+    background-attachment: fixed;
+    position: relative;
+    min-height: 100vh;
+  }
+  body::before {
+    content: "";
+    position: fixed;
+    inset: 0;
+    background: radial-gradient(circle at 30% 20%, rgba(0,0,0,0.65), rgba(0,0,0,0.85));
+    backdrop-filter: blur(3px);
+    z-index: -2;
+  }
+  .header {
+    text-align: center;
+    padding: 1.5rem 1rem;
+    border-bottom: 1px solid rgba(255,215,0,0.3);
+    background: rgba(5,7,12,0.55);
+    backdrop-filter: blur(10px);
+  }
+  .header h1 {
+    font-size: clamp(1.4rem, 5vw, 2rem);
+    background: linear-gradient(135deg, #FFE5A3, #F9B81B);
+    background-clip: text;
+    -webkit-background-clip: text;
+    color: transparent;
+  }
+  .header p { font-size: 0.9rem; color: #e8debc; margin-top: 5px; }
+  .container {
+    max-width: 800px;
+    margin: 0 auto;
+    padding: 30px 24px 50px;
+  }
+  .back-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    background: rgba(255,215,0,0.2);
+    padding: 10px 20px;
+    border-radius: 40px;
+    text-decoration: none;
+    color: #FFE3A4;
+    margin-bottom: 25px;
+    transition: 0.2s;
+    border: 1px solid rgba(255,215,0,0.3);
+  }
+  .back-btn:hover {
+    background: rgba(255,215,0,0.35);
+    transform: translateX(-3px);
+  }
+  .veteran-card-full {
+    background: rgba(12,15,24,0.9);
+    backdrop-filter: blur(14px);
+    border-radius: 36px;
+    padding: 32px;
+    border: 1px solid rgba(255,215,0,0.35);
+  }
+  .veteran-header {
+    display: flex;
+    gap: 24px;
+    flex-wrap: wrap;
+    margin-bottom: 28px;
+    border-bottom: 1px solid rgba(255,215,0,0.2);
+    padding-bottom: 24px;
+  }
+  .veteran-photo-large {
+    flex-shrink: 0;
+    width: 180px;
+    height: 180px;
+    border-radius: 24px;
+    overflow: hidden;
+    background: #1e212e;
+    border: 3px solid #F9B81B;
+  }
+  .veteran-photo-large img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+  }
+  .veteran-title {
+    flex: 1;
+  }
+  .veteran-title .name {
+    font-size: 1.8rem;
+    font-weight: 700;
+    color: #FFE9B6;
+    margin-bottom: 8px;
+  }
+  .veteran-title .category {
+    display: inline-block;
+    background: rgba(249,184,27,0.25);
+    padding: 6px 14px;
+    border-radius: 30px;
+    color: #F9B81B;
+    font-size: 0.8rem;
+    margin-bottom: 12px;
+  }
+  .veteran-title .date {
+    font-size: 0.8rem;
+    color: #aaa;
+    margin-top: 10px;
+  }
+  .info-section {
+    margin-bottom: 24px;
+  }
+  .info-section h3 {
+    font-size: 1.2rem;
+    color: #F9B81B;
+    margin-bottom: 12px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    border-left: 3px solid #F9B81B;
+    padding-left: 12px;
+  }
+  .info-section p {
+    font-size: 1rem;
+    line-height: 1.5;
+    color: #ddd;
+    background: rgba(0,0,0,0.3);
+    padding: 12px 16px;
+    border-radius: 20px;
+  }
+  .info-section .representative {
+    background: rgba(0,0,0,0.3);
+    padding: 12px 16px;
+    border-radius: 20px;
+    color: #ddd;
+  }
+  .info-section .representative i {
+    color: #F9B81B;
+    margin-right: 8px;
+  }
+  @media (max-width: 600px) {
+    .veteran-header { flex-direction: column; align-items: center; text-align: center; }
+    .veteran-title { text-align: center; }
+    .veteran-photo-large { width: 150px; height: 150px; }
+    .veteran-title .name { font-size: 1.4rem; }
+    .container { padding: 20px 16px 40px; }
+    .veteran-card-full { padding: 20px; }
+  }
+  .error-message {
+    text-align: center;
+    padding: 60px 20px;
+    background: rgba(12,15,24,0.9);
+    border-radius: 36px;
+  }
+  .error-message i { font-size: 3rem; color: #ff6b6b; margin-bottom: 20px; }
+  .error-message a { color: #F9B81B; text-decoration: none; }
+</style>
+</head>
+<body>
+
+<div class="header">
+  <h1><i class="fas fa-star-of-life"></i> БЕССМЕРТНЫЙ ПОЛК <br> ЛЮБИНСКОГО РАЙОНА</h1>
+  <p>Карточка ветерана</p>
+</div>
+
+<div class="container">
+  <a href="index.html" class="back-btn"><i class="fas fa-arrow-left"></i> Назад к стене памяти</a>
+  
+  <div id="veteran-content">
+    <!-- Содержимое загрузится через JS -->
+  </div>
+</div>
+
+<script>
+  function formatDate(dateString) {
+    if (!dateString) return 'Дата не указана';
+    const date = new Date(dateString);
+    return date.toLocaleDateString('ru-RU', { day: '2-digit', month: '2-digit', year: 'numeric', hour: '2-digit', minute: '2-digit' });
+  }
+
+  function loadVeteran() {
+    const container = document.getElementById('veteran-content');
+    const veteranData = localStorage.getItem('selectedVeteran');
+    
+    if (!veteranData) {
+      container.innerHTML = `
+        <div class="error-message">
+          <i class="fas fa-exclamation-triangle"></i>
+          <h2>Ветеран не найден</h2>
+          <p>Пожалуйста, вернитесь на главную страницу и выберите ветерана.</p>
+          <a href="index.html">← На главную</a>
+        </div>
+      `;
+      return;
+    }
+    
+    const veteran = JSON.parse(veteranData);
+    
+    container.innerHTML = `
+      <div class="veteran-card-full">
+        <div class="veteran-header">
+          <div class="veteran-photo-large">
+            ${veteran.photoUrl ? `<img src="${veteran.photoUrl}" alt="${escapeHtml(veteran.fullName)}" onerror="this.parentElement.innerHTML='<i class=\\'fas fa-user-circle fa-3x\\' style=\\'display:flex;align-items:center;justify-content:center;height:100%;color:#9e966b;\\'></i>';">` : '<i class="fas fa-user-circle fa-3x" style="display:flex;align-items:center;justify-content:center;height:100%;color:#9e966b;"></i>'}
+          </div>
+          <div class="veteran-title">
+            <div class="name">${escapeHtml(veteran.fullName)}</div>
+            <span class="category"><i class="fas fa-tag"></i> ${escapeHtml(veteran.category)}</span>
+            <div class="date"><i class="fas fa-calendar-alt"></i> Добавлен: ${formatDate(veteran.date)}</div>
+          </div>
+        </div>
+        
+        <div class="info-section">
+          <h3><i class="fas fa-user-friends"></i> Представитель</h3>
+          <div class="representative"><i class="fas fa-user-check"></i> ${escapeHtml(veteran.representative)}</div>
+        </div>
+        
+        <div class="info-section">
+          <h3><i class="fas fa-book-open"></i> Биография</h3>
+          <p>${escapeHtml(veteran.biography).replace(/\n/g, '<br>') || 'Нет описания'}</p>
+        </div>
+      </div>
+    `;
+  }
+  
+  function escapeHtml(s) { 
+    if (!s) return ''; 
+    return s.replace(/[&<>]/g, m => ({ '&':'&amp;', '<':'&lt
