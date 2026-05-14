@@ -237,7 +237,6 @@
       <div class="input-field"><label><i class="fas fa-user-friends"></i> ФИО представителя</label><input id="representative" placeholder="Кто вносит данные"></div>
       <div class="input-field"><label><i class="fas fa-feather-alt"></i> Биография</label><textarea id="biography" placeholder="Годы жизни, боевой путь, награды..."></textarea></div>
       
-      <!-- ЗАГРУЗКА ФОТО С АВТОМАТИЧЕСКОЙ ЗАГРУЗКОЙ НА IMGBB -->
       <div class="input-field">
         <label><i class="fas fa-camera"></i> Фотография ветерана</label>
         <input type="file" id="photoFile" accept="image/jpeg,image/png,image/jpg">
@@ -268,9 +267,9 @@
 
   // ⚠️ ВСТАВЬТЕ ВАШИ URL ПОСЛЕ РАЗВЕРТЫВАНИЯ СКРИПТОВ!
   const SCRIPT_URLS = {
-    'Ветеран войны': 'https://script.google.com/macros/s/AKfycby6DIdWaptSqzKXMKt64d8C2Z-2-J4t7AcCITAp_b6nhjBddmW9sA0-d7TksOGCh8_h9Q/exec',
-    'Ветеран тыла': 'https://script.google.com/macros/s/AKfycbzOhCsOUoqS4d0fh7fTGynTBa_Zlru4_4spcYwanvmv-CEf79cvFzogZQaSD4duskyXbg/exec',
-    'Ребёнок войны': 'https://script.google.com/macros/s/AKfycbwESMxTWgah3GTL1RN3fXCpPcVtICSJb571kYROjRoQSVq0nYHvr6vzvc-14c4vOVIb/exec',
+    'Ветеран войны': 'https://script.google.com/macros/s/AKfycbwR86aUaTmJmxp1wauUYWhw_DeidtvvCkJ0b-UoLvjX4Vp9rjRjWLi8FgWCQ0Aq9z-PYA/exec',
+    'Ветеран тыла': 'https://script.google.com/macros/s/AKfycbxF_liOPzLNyHMJNayPde9EIfe3C5sFyRR-IIa2g0XeyZIetnpOJqfxAIaA4tLxug0tGA/exec',
+    'Ребёнок войны': 'https://script.google.com/macros/s/AKfycbyqntYfRJBxN_H0vQ778Cc3-EvOVYLYNfX99g5v5aYoU8Gm0CccKK8mhU_blN4qCLw/exec',
     'СВО': 'https://script.google.com/macros/s/AKfycbwfGI1RDvsui963gRx5uEyZ1hvSH8XAwFr5MMycS3xrE0yR41wW2_vstFMqHgDsd5OoYg/exec'
   };
 
@@ -298,24 +297,19 @@
     reader.readAsDataURL(file);
 
     currentPhotoUploading = true;
-    showToast('Загрузка фото на ImgBB...', 'success');
+    showToast('Загрузка фото...', 'success');
     
     const formData = new FormData();
     formData.append('key', IMGBB_API_KEY);
     formData.append('image', file);
-    formData.append('expiration', '0'); // без срока удаления
 
     try {
-      const response = await fetch(IMGBB_UPLOAD_URL, {
-        method: 'POST',
-        body: formData
-      });
+      const response = await fetch(IMGBB_UPLOAD_URL, { method: 'POST', body: formData });
       const data = await response.json();
-      
       if (data && data.data && data.data.url) {
-        const directLink = data.data.url; // Ссылка типа https://i.ibb.co/...
+        const directLink = data.data.url;
         document.getElementById('photoUrl').value = directLink;
-        showToast('Фото загружено! Ссылка сохранена', 'success');
+        showToast('Фото загружено!', 'success');
       } else {
         throw new Error('Не удалось получить ссылку');
       }
@@ -371,7 +365,7 @@
     showToast(`Загружено ${allVeterans.length} записей`, 'success');
   }
 
-  // === 3. ОТПРАВКА ДАННЫХ В ТАБЛИЦУ (включая photoUrl) ===
+  // === 3. ОТПРАВКА ДАННЫХ В ТАБЛИЦУ ===
   async function submitForm() {
     const lastName = document.getElementById('lastName').value.trim();
     const firstName = document.getElementById('firstName').value.trim();
@@ -387,11 +381,6 @@
     }
     const fullName = `${lastName} ${firstName} ${middleName}`.trim().replace(/\s+/g, ' ');
     
-    if (allVeterans.some(v => v.fullName === fullName)) {
-      showToast('Этот ветеран уже есть!', 'error');
-      return;
-    }
-
     if (currentPhotoUploading) {
       showToast('Подождите, фото загружается...', 'error');
       return;
@@ -412,13 +401,12 @@
       category: category,
       representative: representative || 'Не указан',
       biography: biography || 'Нет описания',
-      photoUrl: photoUrl,   // <-- ЭТО ПОПАДЁТ В 9-Й СТОЛБЕЦ!
+      photoUrl: photoUrl,
       date: new Date().toISOString()
     };
 
-    showToast('Отправка в Google Sheets...', 'success');
+    showToast('Отправка...', 'success');
     try {
-      // Используем no-cors для обхода CORS
       await fetch(url, {
         method: 'POST',
         mode: 'no-cors',
@@ -426,14 +414,16 @@
         body: JSON.stringify(data)
       });
       
-      allVeterans.unshift({
+      // ✅ ПОКАЗЫВАЕМ КАРТОЧКУ СРАЗУ (без ожидания CSV)
+      const newVeteran = {
         fullName: fullName,
         category: category,
         representative: representative || 'Не указан',
         biography: biography || 'Нет описания',
         photoUrl: photoUrl,
         date: new Date().toISOString()
-      });
+      };
+      allVeterans.unshift(newVeteran);
       filteredVeterans = [...allVeterans];
       render();
       clearForm();
@@ -454,7 +444,7 @@
   function render() {
     const container = document.getElementById('list');
     if (!filteredVeterans.length) {
-      container.innerHTML = `<div class="empty-list">Пока никого нет</div>`;
+      container.innerHTML = `<div class="empty-list"><i class="fas fa-tree"></i> Пока никого нет. Будьте первым!</div>`;
       return;
     }
     container.innerHTML = filteredVeterans.slice(0, 150).map(item => `
