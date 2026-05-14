@@ -95,17 +95,6 @@
   }
   .photo-preview { margin-top: 8px; display: flex; align-items: center; gap: 12px; flex-wrap: wrap; }
   .photo-preview img { width: 60px; height: 60px; object-fit: cover; border-radius: 16px; border: 2px solid #F9B81B; }
-  .file-input-label {
-    background: rgba(249,184,27,0.18);
-    padding: 8px 16px;
-    border-radius: 40px;
-    cursor: pointer;
-    font-size: 0.8rem;
-    border: 1px solid rgba(249,184,27,0.5);
-    display: inline-flex;
-    align-items: center;
-    gap: 8px;
-  }
   button {
     width: 100%;
     padding: 12px;
@@ -248,13 +237,14 @@
       <div class="input-field"><label><i class="fas fa-user-friends"></i> ФИО представителя</label><input id="representative" placeholder="Кто вносит данные"></div>
       <div class="input-field"><label><i class="fas fa-feather-alt"></i> Биография</label><textarea id="biography" placeholder="Годы жизни, боевой путь, награды..."></textarea></div>
       
+      <!-- АВТОМАТИЧЕСКАЯ ЗАГРУЗКА ФОТО -->
       <div class="input-field">
-        <label><i class="fas fa-link"></i> Ссылка на фото (ImgBB или Google Drive)</label>
-        <input id="photoUrl" placeholder="https://i.ibb.co/... или https://drive.google.com/uc?export=view&id=...">
+        <label><i class="fas fa-camera"></i> Фотография ветерана</label>
+        <input type="file" id="photoFile" accept="image/jpeg,image/png,image/jpg">
+        <div class="photo-preview" id="photoPreviewContainer"></div>
+        <input type="hidden" id="photoUrl" value="">
         <div class="helper-text" style="font-size:0.7rem; color:#aaa; margin-top:4px;">
-          <i class="fas fa-info-circle"></i> 
-          Как получить ссылку: загрузите фото на <a href="https://imgbb.com/upload" target="_blank" style="color:#F9B81B;">ImgBB</a>, 
-          после загрузки скопируйте "Прямая ссылка"
+          <i class="fas fa-info-circle"></i> Фото загрузится автоматически после выбора файла
         </div>
       </div>
       
@@ -272,7 +262,12 @@
 <div id="toast" class="toast"></div>
 
 <script>
-  // ==================== ВАШИ URL ====================
+  // ==================== НАСТРОЙКИ ====================
+  // Ваш API-ключ ImgBB
+  const IMGBB_API_KEY = 'a9fdca629f141242a3b2370dbdd1f718';
+  const IMGBB_UPLOAD_URL = 'https://api.imgbb.com/1/upload';
+
+  // URL ваших скриптов
   const SCRIPT_URLS = {
     'Ветеран войны': 'https://script.google.com/macros/s/AKfycby6DIdWaptSqzKXMKt64d8C2Z-2-J4t7AcCITAp_b6nhjBddmW9sA0-d7TksOGCh8_h9Q/exec',
     'Ветеран тыла': 'https://script.google.com/macros/s/AKfycbzOhCsOUoqS4d0fh7fTGynTBa_Zlru4_4spcYwanvmv-CEf79cvFzogZQaSD4duskyXbg/exec',
@@ -280,7 +275,7 @@
     'СВО': 'https://script.google.com/macros/s/AKfycbwfGI1RDvsui963gRx5uEyZ1hvSH8XAwFr5MMycS3xrE0yR41wW2_vstFMqHgDsd5OoYg/exec'
   };
 
-  // === ID таблиц ===
+  // ID ваших таблиц
   const SHEET_IDS = {
     'Ветеран войны': '1-OnrHFAPWErVmV599WSEmVkdyPko2aZy266abJVsVMg',
     'Ветеран тыла': '1I_7fp0x4suK_jmrDnhP37rAdCLYJRSq6rauEfKZEg3Q',
@@ -290,6 +285,48 @@
 
   let allVeterans = [];
   let filteredVeterans = [];
+  let currentPhotoUploading = false;
+  let currentPhotoUrl = '';
+
+  // === АВТОМАТИЧЕСКАЯ ЗАГРУЗКА ФОТО НА IMGBB ===
+  document.getElementById('photoFile').addEventListener('change', async function(e) {
+    const file = e.target.files[0];
+    if (!file) return;
+
+    // Показываем превью
+    const reader = new FileReader();
+    reader.onload = function(ev) {
+      document.getElementById('photoPreviewContainer').innerHTML = `<img src="${ev.target.result}" alt="preview">`;
+    };
+    reader.readAsDataURL(file);
+
+    // Загружаем на ImgBB
+    currentPhotoUploading = true;
+    showToast('Загрузка фото...', 'success');
+    
+    const formData = new FormData();
+    formData.append('key', IMGBB_API_KEY);
+    formData.append('image', file);
+
+    try {
+      const response = await fetch(IMGBB_UPLOAD_URL, {
+        method: 'POST',
+        body: formData
+      });
+      const data = await response.json();
+      if (data && data.data && data.data.url) {
+        currentPhotoUrl = data.data.url;
+        document.getElementById('photoUrl').value = currentPhotoUrl;
+        showToast('Фото загружено!', 'success');
+      } else {
+        throw new Error('Не удалось получить URL');
+      }
+    } catch (error) {
+      console.error('Ошибка:', error);
+      showToast('Ошибка загрузки фото', 'error');
+    }
+    currentPhotoUploading = false;
+  });
 
   // === ЗАГРУЗКА ДАННЫХ ИЗ ТАБЛИЦ ===
   async function loadSheetCSV(sheetId, category) {
@@ -316,12 +353,11 @@
           fullName: cells[5] || '',
           representative: cells[6] || 'Не указан',
           biography: cells[7] || 'Нет описания',
-          photoUrl: cells[8] || ''
+          photoUrl: cells[8] || ''   // ← колонка "Ссылка на фото"
         });
       }
       return list;
     } catch(e) {
-      console.warn(`Ошибка загрузки ${category}:`, e);
       return [];
     }
   }
@@ -357,6 +393,11 @@
     
     if (allVeterans.some(v => v.fullName === fullName)) {
       showToast('Этот ветеран уже есть!', 'error');
+      return;
+    }
+
+    if (currentPhotoUploading) {
+      showToast('Подождите, фото загружается...', 'error');
       return;
     }
 
@@ -401,16 +442,21 @@
       clearForm();
       showToast('Ветеран добавлен!', 'success');
     } catch(e) {
-      showToast('Ошибка отправки. Проверьте консоль (F12)', 'error');
-      console.error(e);
+      showToast('Ошибка отправки', 'error');
     }
   }
 
   function clearForm() {
-    ['lastName','firstName','middleName','representative','biography','category','photoUrl'].forEach(id => {
-      const el = document.getElementById(id);
-      if (el) el.value = '';
-    });
+    document.getElementById('lastName').value = '';
+    document.getElementById('firstName').value = '';
+    document.getElementById('middleName').value = '';
+    document.getElementById('representative').value = '';
+    document.getElementById('biography').value = '';
+    document.getElementById('category').value = '';
+    document.getElementById('photoFile').value = '';
+    document.getElementById('photoPreviewContainer').innerHTML = '';
+    document.getElementById('photoUrl').value = '';
+    currentPhotoUrl = '';
   }
 
   function render() {
