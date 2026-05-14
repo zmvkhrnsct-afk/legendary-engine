@@ -139,7 +139,6 @@
     display: flex;
     gap: 14px;
     transition: 0.2s;
-    cursor: pointer;
   }
   .veteran-card:hover {
     background: rgba(32,36,52,0.95);
@@ -183,18 +182,7 @@
   }
   .representative { font-size: 0.72rem; color: #cfc8b2; margin: 4px 0; }
   .representative i { margin-right: 5px; color: #F9B81B; }
-  .bio-short {
-    font-size: 0.73rem;
-    line-height: 1.35;
-    color: #d9d0b5;
-    margin-top: 5px;
-    padding-top: 5px;
-    border-top: 1px dashed rgba(255,215,0,0.2);
-    overflow: hidden;
-    display: -webkit-box;
-    -webkit-line-clamp: 2;
-    -webkit-box-orient: vertical;
-  }
+  .bio-short { font-size: 0.73rem; color: #d9d0b5; margin-top: 5px; padding-top: 5px; border-top: 1px dashed rgba(255,215,0,0.2); }
   .toast {
     position: fixed;
     bottom: 28px;
@@ -226,7 +214,7 @@
 
 <div class="header">
   <h1><i class="fas fa-star-of-life"></i> БЕССМЕРТНЫЙ ПОЛК <br> ЛЮБИНСКОГО РАЙОНА</h1>
-  <p>Нажмите на карточку, чтобы увидеть полную информацию</p>
+  <p>Истории, лица, память поколений</p>
 </div>
 
 <div class="container">
@@ -254,9 +242,6 @@
         <input type="file" id="photoFile" accept="image/jpeg,image/png,image/jpg">
         <div class="photo-preview" id="photoPreviewContainer"></div>
         <input type="hidden" id="photoUrl" value="">
-        <div class="helper-text" style="font-size:0.7rem; color:#aaa; margin-top:4px;">
-          <i class="fas fa-info-circle"></i> Фото загрузится автоматически
-        </div>
       </div>
       
       <button onclick="submitForm()"><i class="fas fa-save"></i> Сохранить память</button>
@@ -265,23 +250,23 @@
 
   <div class="list-box">
     <h3><i class="fas fa-memory"></i> Стена памяти</h3>
-    <input class="search" id="searchInput" placeholder="Поиск по имени, биографии..." oninput="filterList(this.value)">
-    <div id="list" class="list-container"><div style="text-align:center;padding:40px;"><i class="fas fa-spinner fa-pulse"></i> Загрузка...</div></div>
+    <input class="search" id="searchInput" placeholder="Поиск..." oninput="filterList(this.value)">
+    <div id="list" class="list-container">Загрузка...</div>
   </div>
 </div>
 
 <div id="toast" class="toast"></div>
 
 <script>
-  // ==================== НАСТРОЙКИ ====================
   const IMGBB_API_KEY = 'a9fdca629f141242a3b2370dbdd1f718';
   const IMGBB_UPLOAD_URL = 'https://api.imgbb.com/1/upload';
 
+  // ⚠️ ВСТАВЬ НОВЫЙ URL ДЛЯ СВО!
   const SCRIPT_URLS = {
     'Ветеран войны': 'https://script.google.com/macros/s/AKfycby6DIdWaptSqzKXMKt64d8C2Z-2-J4t7AcCITAp_b6nhjBddmW9sA0-d7TksOGCh8_h9Q/exec',
     'Ветеран тыла': 'https://script.google.com/macros/s/AKfycbzOhCsOUoqS4d0fh7fTGynTBa_Zlru4_4spcYwanvmv-CEf79cvFzogZQaSD4duskyXbg/exec',
     'Ребёнок войны': 'https://script.google.com/macros/s/AKfycbwESMxTWgah3GTL1RN3fXCpPcVtICSJb571kYROjRoQSVq0nYHvr6vzvc-14c4vOVIb/exec',
-    'СВО': 'https://script.google.com/macros/s/AKfycbwfGI1RDvsui963gRx5uEyZ1hvSH8XAwFr5MMycS3xrE0yR41wW2_vstFMqHgDsd5OoYg/exec'
+    'СВО': 'https://script.google.com/macros/s/НОВЫЙ_URL_СВО/exec'   // <-- ЗАМЕНИ!
   };
 
   const SHEET_IDS = {
@@ -293,69 +278,35 @@
 
   let allVeterans = [];
   let filteredVeterans = [];
-  let currentPhotoUploading = false;
 
-  // === ЗАГРУЗКА ФОТО НА IMGBB С ПОВТОРОМ ПРИ ОШИБКЕ ===
-  async function uploadPhotoToImgBB(file, retryCount = 0) {
+  // Автозагрузка фото на ImgBB
+  document.getElementById('photoFile').addEventListener('change', async function(e) {
+    const file = e.target.files[0];
+    if (!file) return;
+
+    const reader = new FileReader();
+    reader.onload = function(ev) {
+      document.getElementById('photoPreviewContainer').innerHTML = `<img src="${ev.target.result}">`;
+    };
+    reader.readAsDataURL(file);
+
     const formData = new FormData();
     formData.append('key', IMGBB_API_KEY);
     formData.append('image', file);
 
     try {
-      const controller = new AbortController();
-      const timeoutId = setTimeout(() => controller.abort(), 30000);
-      
-      const response = await fetch(IMGBB_UPLOAD_URL, { 
-        method: 'POST', 
-        body: formData,
-        signal: controller.signal
-      });
-      clearTimeout(timeoutId);
-      
-      if (!response.ok) throw new Error(`HTTP ${response.status}`);
+      const response = await fetch(IMGBB_UPLOAD_URL, { method: 'POST', body: formData });
       const data = await response.json();
-      
       if (data && data.data && data.data.url) {
-        return data.data.url;
-      } else {
-        throw new Error('Не удалось получить ссылку');
+        document.getElementById('photoUrl').value = data.data.url;
+        showToast('Фото загружено!', 'success');
       }
     } catch (error) {
-      console.error(`Ошибка загрузки (попытка ${retryCount + 1}):`, error);
-      if (retryCount < 2) {
-        showToast(`Повторная загрузка фото... (${retryCount + 1}/3)`, 'success');
-        await new Promise(resolve => setTimeout(resolve, 2000));
-        return uploadPhotoToImgBB(file, retryCount + 1);
-      }
-      showToast('Ошибка загрузки фото. Вы можете вставить ссылку вручную', 'error');
-      return null;
+      showToast('Ошибка загрузки фото', 'error');
     }
-  }
-
-  // === ОБРАБОТЧИК ВЫБОРА ФАЙЛА ===
-  document.getElementById('photoFile').addEventListener('change', async function(e) {
-    const file = e.target.files[0];
-    if (!file) return;
-
-    // Превью
-    const reader = new FileReader();
-    reader.onload = function(ev) {
-      document.getElementById('photoPreviewContainer').innerHTML = `<img src="${ev.target.result}" alt="preview">`;
-    };
-    reader.readAsDataURL(file);
-
-    currentPhotoUploading = true;
-    showToast('Загрузка фото...', 'success');
-    
-    const photoUrl = await uploadPhotoToImgBB(file);
-    if (photoUrl) {
-      document.getElementById('photoUrl').value = photoUrl;
-      showToast('Фото загружено!', 'success');
-    }
-    currentPhotoUploading = false;
   });
 
-  // === ЗАГРУЗКА ДАННЫХ ИЗ ТАБЛИЦ ===
+  // Загрузка списка
   async function loadSheetCSV(sheetId, category) {
     try {
       const resp = await fetch(`https://docs.google.com/spreadsheets/d/${sheetId}/export?format=csv`);
@@ -388,7 +339,6 @@
   }
 
   async function loadAllData() {
-    showToast('Загрузка данных...', 'success');
     const promises = Object.entries(SHEET_IDS).map(([cat, id]) => loadSheetCSV(id, cat));
     const results = await Promise.all(promises);
     let combined = [];
@@ -397,10 +347,9 @@
     allVeterans = combined;
     filteredVeterans = [...allVeterans];
     render();
-    showToast(`Загружено ${allVeterans.length} записей`, 'success');
   }
 
-  // === ОТПРАВКА ДАННЫХ В ТАБЛИЦУ ===
+  // Отправка
   async function submitForm() {
     const lastName = document.getElementById('lastName').value.trim();
     const firstName = document.getElementById('firstName').value.trim();
@@ -414,56 +363,30 @@
       showToast('Заполните фамилию, имя и категорию', 'error');
       return;
     }
-    const fullName = `${lastName} ${firstName} ${middleName}`.trim().replace(/\s+/g, ' ');
+    const fullName = `${lastName} ${firstName} ${middleName}`.trim();
     
-    if (currentPhotoUploading) {
-      showToast('Подождите, фото загружается...', 'error');
-      return;
-    }
-
     const url = SCRIPT_URLS[category];
-    if (!url) {
-      showToast('Ошибка: URL скрипта не найден', 'error');
-      return;
-    }
-
     const data = {
       action: 'add',
-      fullName: fullName,
-      lastName: lastName,
-      firstName: firstName,
-      middleName: middleName || '',
-      category: category,
-      representative: representative || 'Не указан',
-      biography: biography || 'Нет описания',
+      fullName, lastName, firstName, middleName,
+      category,
+      representative: representative || '',
+      biography: biography || '',
       photoUrl: photoUrl,
       date: new Date().toISOString()
     };
 
-    showToast('Отправка...', 'success');
     try {
       await fetch(url, {
         method: 'POST',
         mode: 'no-cors',
-        headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(data)
       });
-      
-      const newVeteran = {
-        fullName: fullName,
-        category: category,
-        representative: representative || 'Не указан',
-        biography: biography || 'Нет описания',
-        photoUrl: photoUrl,
-        date: new Date().toISOString()
-      };
-      allVeterans.unshift(newVeteran);
-      filteredVeterans = [...allVeterans];
-      render();
-      clearForm();
       showToast('Ветеран добавлен!', 'success');
+      loadAllData(); // обновляем список
+      clearForm();
     } catch(e) {
-      showToast('Ошибка отправки', 'error');
+      showToast('Ошибка', 'error');
     }
   }
 
@@ -475,32 +398,21 @@
     document.getElementById('photoPreviewContainer').innerHTML = '';
   }
 
-  function openVeteranCard(index) {
-    const veteran = filteredVeterans[index];
-    if (veteran) {
-      localStorage.setItem('selectedVeteran', JSON.stringify(veteran));
-      window.location.href = 'veteran.html';
-    }
-  }
-
   function render() {
     const container = document.getElementById('list');
     if (!filteredVeterans.length) {
-      container.innerHTML = `<div class="empty-list"><i class="fas fa-tree"></i> Пока никого нет. Будьте первым!</div>`;
+      container.innerHTML = '<div class="empty-list">Никого нет</div>';
       return;
     }
-    container.innerHTML = filteredVeterans.slice(0, 150).map((item, index) => `
-      <div class="veteran-card" onclick="openVeteranCard(${index})">
+    container.innerHTML = filteredVeterans.map(item => `
+      <div class="veteran-card">
         <div class="veteran-photo">
-          ${item.photoUrl ? `<img src="${item.photoUrl}" loading="lazy" onerror="this.style.display='none'; this.parentElement.innerHTML='<i class=\'fas fa-user-circle fa-2x\'></i>';">` : '<i class="fas fa-user-circle fa-2x"></i>'}
+          ${item.photoUrl ? `<img src="${item.photoUrl}">` : '<i class="fas fa-user-circle fa-2x"></i>'}
         </div>
         <div class="veteran-info">
-          <div class="veteran-name">
-            <span><i class="fas fa-medal"></i> ${escapeHtml(item.fullName)}</span>
-            <span class="veteran-category">${escapeHtml(item.category)}</span>
-          </div>
-          <div class="representative"><i class="fas fa-user-check"></i> ${escapeHtml(item.representative)}</div>
-          <div class="bio-short"><i class="fas fa-book-open"></i> ${escapeHtml((item.biography || 'Нет описания').substring(0, 110))}${(item.biography || '').length > 110 ? '…' : ''}</div>
+          <div class="veteran-name">${escapeHtml(item.fullName)}<span class="veteran-category">${escapeHtml(item.category)}</span></div>
+          <div class="representative">${escapeHtml(item.representative)}</div>
+          <div class="bio-short">${escapeHtml((item.biography || '').substring(0, 110))}</div>
         </div>
       </div>
     `).join('');
@@ -508,11 +420,7 @@
 
   function filterList(q) {
     const lower = q.toLowerCase();
-    filteredVeterans = lower ? allVeterans.filter(v => 
-      v.fullName.toLowerCase().includes(lower) ||
-      v.biography.toLowerCase().includes(lower) ||
-      v.representative.toLowerCase().includes(lower)
-    ) : [...allVeterans];
+    filteredVeterans = lower ? allVeterans.filter(v => v.fullName.toLowerCase().includes(lower)) : [...allVeterans];
     render();
   }
 
@@ -526,7 +434,6 @@
 
   window.submitForm = submitForm;
   window.filterList = filterList;
-  window.openVeteranCard = openVeteranCard;
   loadAllData();
 </script>
 </body>
