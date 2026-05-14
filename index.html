@@ -255,7 +255,7 @@
         <div class="photo-preview" id="photoPreviewContainer"></div>
         <input type="hidden" id="photoUrl" value="">
         <div class="helper-text" style="font-size:0.7rem; color:#aaa; margin-top:4px;">
-          <i class="fas fa-info-circle"></i> Фото загрузится автоматически после выбора файла
+          <i class="fas fa-info-circle"></i> Фото загрузится автоматически
         </div>
       </div>
       
@@ -295,11 +295,49 @@
   let filteredVeterans = [];
   let currentPhotoUploading = false;
 
-  // === ЗАГРУЗКА ФОТО НА IMGBB ===
+  // === ЗАГРУЗКА ФОТО НА IMGBB С ПОВТОРОМ ПРИ ОШИБКЕ ===
+  async function uploadPhotoToImgBB(file, retryCount = 0) {
+    const formData = new FormData();
+    formData.append('key', IMGBB_API_KEY);
+    formData.append('image', file);
+
+    try {
+      const controller = new AbortController();
+      const timeoutId = setTimeout(() => controller.abort(), 30000);
+      
+      const response = await fetch(IMGBB_UPLOAD_URL, { 
+        method: 'POST', 
+        body: formData,
+        signal: controller.signal
+      });
+      clearTimeout(timeoutId);
+      
+      if (!response.ok) throw new Error(`HTTP ${response.status}`);
+      const data = await response.json();
+      
+      if (data && data.data && data.data.url) {
+        return data.data.url;
+      } else {
+        throw new Error('Не удалось получить ссылку');
+      }
+    } catch (error) {
+      console.error(`Ошибка загрузки (попытка ${retryCount + 1}):`, error);
+      if (retryCount < 2) {
+        showToast(`Повторная загрузка фото... (${retryCount + 1}/3)`, 'success');
+        await new Promise(resolve => setTimeout(resolve, 2000));
+        return uploadPhotoToImgBB(file, retryCount + 1);
+      }
+      showToast('Ошибка загрузки фото. Вы можете вставить ссылку вручную', 'error');
+      return null;
+    }
+  }
+
+  // === ОБРАБОТЧИК ВЫБОРА ФАЙЛА ===
   document.getElementById('photoFile').addEventListener('change', async function(e) {
     const file = e.target.files[0];
     if (!file) return;
 
+    // Превью
     const reader = new FileReader();
     reader.onload = function(ev) {
       document.getElementById('photoPreviewContainer').innerHTML = `<img src="${ev.target.result}" alt="preview">`;
@@ -309,23 +347,10 @@
     currentPhotoUploading = true;
     showToast('Загрузка фото...', 'success');
     
-    const formData = new FormData();
-    formData.append('key', IMGBB_API_KEY);
-    formData.append('image', file);
-
-    try {
-      const response = await fetch(IMGBB_UPLOAD_URL, { method: 'POST', body: formData });
-      const data = await response.json();
-      if (data && data.data && data.data.url) {
-        const directLink = data.data.url;
-        document.getElementById('photoUrl').value = directLink;
-        showToast('Фото загружено!', 'success');
-      } else {
-        throw new Error('Не удалось получить ссылку');
-      }
-    } catch (error) {
-      console.error(error);
-      showToast('Ошибка загрузки фото', 'error');
+    const photoUrl = await uploadPhotoToImgBB(file);
+    if (photoUrl) {
+      document.getElementById('photoUrl').value = photoUrl;
+      showToast('Фото загружено!', 'success');
     }
     currentPhotoUploading = false;
   });
@@ -450,7 +475,6 @@
     document.getElementById('photoPreviewContainer').innerHTML = '';
   }
 
-  // === ПЕРЕХОД НА СТРАНИЦУ С ДЕТАЛЬНОЙ КАРТОЧКОЙ ===
   function openVeteranCard(index) {
     const veteran = filteredVeterans[index];
     if (veteran) {
