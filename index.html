@@ -237,14 +237,14 @@
       <div class="input-field"><label><i class="fas fa-user-friends"></i> ФИО представителя</label><input id="representative" placeholder="Кто вносит данные"></div>
       <div class="input-field"><label><i class="fas fa-feather-alt"></i> Биография</label><textarea id="biography" placeholder="Годы жизни, боевой путь, награды..."></textarea></div>
       
-      <!-- АВТОМАТИЧЕСКАЯ ЗАГРУЗКА ФОТО -->
+      <!-- ЗАГРУЗКА ФОТО -->
       <div class="input-field">
         <label><i class="fas fa-camera"></i> Фотография ветерана</label>
         <input type="file" id="photoFile" accept="image/jpeg,image/png,image/jpg">
         <div class="photo-preview" id="photoPreviewContainer"></div>
         <input type="hidden" id="photoUrl" value="">
         <div class="helper-text" style="font-size:0.7rem; color:#aaa; margin-top:4px;">
-          <i class="fas fa-info-circle"></i> Фото загрузится автоматически после выбора файла
+          <i class="fas fa-info-circle"></i> Фото загрузится автоматически
         </div>
       </div>
       
@@ -263,11 +263,9 @@
 
 <script>
   // ==================== НАСТРОЙКИ ====================
-  // Ваш API-ключ ImgBB
   const IMGBB_API_KEY = 'a9fdca629f141242a3b2370dbdd1f718';
   const IMGBB_UPLOAD_URL = 'https://api.imgbb.com/1/upload';
 
-  // URL ваших скриптов
   const SCRIPT_URLS = {
     'Ветеран войны': 'https://script.google.com/macros/s/AKfycby6DIdWaptSqzKXMKt64d8C2Z-2-J4t7AcCITAp_b6nhjBddmW9sA0-d7TksOGCh8_h9Q/exec',
     'Ветеран тыла': 'https://script.google.com/macros/s/AKfycbzOhCsOUoqS4d0fh7fTGynTBa_Zlru4_4spcYwanvmv-CEf79cvFzogZQaSD4duskyXbg/exec',
@@ -275,7 +273,6 @@
     'СВО': 'https://script.google.com/macros/s/AKfycbwfGI1RDvsui963gRx5uEyZ1hvSH8XAwFr5MMycS3xrE0yR41wW2_vstFMqHgDsd5OoYg/exec'
   };
 
-  // ID ваших таблиц
   const SHEET_IDS = {
     'Ветеран войны': '1-OnrHFAPWErVmV599WSEmVkdyPko2aZy266abJVsVMg',
     'Ветеран тыла': '1I_7fp0x4suK_jmrDnhP37rAdCLYJRSq6rauEfKZEg3Q',
@@ -286,21 +283,18 @@
   let allVeterans = [];
   let filteredVeterans = [];
   let currentPhotoUploading = false;
-  let currentPhotoUrl = '';
 
-  // === АВТОМАТИЧЕСКАЯ ЗАГРУЗКА ФОТО НА IMGBB ===
+  // === ЗАГРУЗКА ФОТО НА IMGBB ===
   document.getElementById('photoFile').addEventListener('change', async function(e) {
     const file = e.target.files[0];
     if (!file) return;
 
-    // Показываем превью
     const reader = new FileReader();
     reader.onload = function(ev) {
       document.getElementById('photoPreviewContainer').innerHTML = `<img src="${ev.target.result}" alt="preview">`;
     };
     reader.readAsDataURL(file);
 
-    // Загружаем на ImgBB
     currentPhotoUploading = true;
     showToast('Загрузка фото...', 'success');
     
@@ -309,26 +303,22 @@
     formData.append('image', file);
 
     try {
-      const response = await fetch(IMGBB_UPLOAD_URL, {
-        method: 'POST',
-        body: formData
-      });
+      const response = await fetch(IMGBB_UPLOAD_URL, { method: 'POST', body: formData });
       const data = await response.json();
       if (data && data.data && data.data.url) {
-        currentPhotoUrl = data.data.url;
-        document.getElementById('photoUrl').value = currentPhotoUrl;
+        const photoUrl = data.data.url;
+        document.getElementById('photoUrl').value = photoUrl;
         showToast('Фото загружено!', 'success');
       } else {
-        throw new Error('Не удалось получить URL');
+        throw new Error('Ошибка');
       }
     } catch (error) {
-      console.error('Ошибка:', error);
       showToast('Ошибка загрузки фото', 'error');
     }
     currentPhotoUploading = false;
   });
 
-  // === ЗАГРУЗКА ДАННЫХ ИЗ ТАБЛИЦ ===
+  // === ЗАГРУЗКА ДАННЫХ ===
   async function loadSheetCSV(sheetId, category) {
     try {
       const resp = await fetch(`https://docs.google.com/spreadsheets/d/${sheetId}/export?format=csv`);
@@ -353,17 +343,15 @@
           fullName: cells[5] || '',
           representative: cells[6] || 'Не указан',
           biography: cells[7] || 'Нет описания',
-          photoUrl: cells[8] || ''   // ← колонка "Ссылка на фото"
+          photoUrl: cells[8] || ''
         });
       }
       return list;
-    } catch(e) {
-      return [];
-    }
+    } catch(e) { return []; }
   }
 
   async function loadAllData() {
-    showToast('Загрузка данных...', 'success');
+    showToast('Загрузка...', 'success');
     const promises = Object.entries(SHEET_IDS).map(([cat, id]) => loadSheetCSV(id, cat));
     const results = await Promise.all(promises);
     let combined = [];
@@ -375,7 +363,7 @@
     showToast(`Загружено ${allVeterans.length} записей`, 'success');
   }
 
-  // === ОТПРАВКА НОВОЙ ЗАПИСИ ===
+  // === ОТПРАВКА ===
   async function submitForm() {
     const lastName = document.getElementById('lastName').value.trim();
     const firstName = document.getElementById('firstName').value.trim();
@@ -392,7 +380,7 @@
     const fullName = `${lastName} ${firstName} ${middleName}`.trim().replace(/\s+/g, ' ');
     
     if (allVeterans.some(v => v.fullName === fullName)) {
-      showToast('Этот ветеран уже есть!', 'error');
+      showToast('Такой ветеран уже есть!', 'error');
       return;
     }
 
@@ -402,18 +390,10 @@
     }
 
     const url = SCRIPT_URLS[category];
-    if (!url) {
-      showToast('Ошибка: URL скрипта не найден', 'error');
-      return;
-    }
-
     const data = {
       action: 'add',
-      fullName: fullName,
-      lastName: lastName,
-      firstName: firstName,
-      middleName: middleName || '',
-      category: category,
+      fullName, lastName, firstName, middleName: middleName || '',
+      category,
       representative: representative || 'Не указан',
       biography: biography || 'Нет описания',
       photoUrl: photoUrl,
@@ -430,8 +410,7 @@
       });
       
       allVeterans.unshift({
-        fullName: fullName,
-        category: category,
+        fullName, category,
         representative: representative || 'Не указан',
         biography: biography || 'Нет описания',
         photoUrl: photoUrl,
@@ -447,36 +426,31 @@
   }
 
   function clearForm() {
-    document.getElementById('lastName').value = '';
-    document.getElementById('firstName').value = '';
-    document.getElementById('middleName').value = '';
-    document.getElementById('representative').value = '';
-    document.getElementById('biography').value = '';
-    document.getElementById('category').value = '';
-    document.getElementById('photoFile').value = '';
+    ['lastName','firstName','middleName','representative','biography','category','photoFile','photoUrl'].forEach(id => {
+      const el = document.getElementById(id);
+      if (el) el.value = '';
+    });
     document.getElementById('photoPreviewContainer').innerHTML = '';
-    document.getElementById('photoUrl').value = '';
-    currentPhotoUrl = '';
   }
 
   function render() {
     const container = document.getElementById('list');
     if (!filteredVeterans.length) {
-      container.innerHTML = `<div class="empty-list"><i class="fas fa-tree"></i> Пока никого нет. Будьте первым!</div>`;
+      container.innerHTML = `<div class="empty-list">Пока никого нет</div>`;
       return;
     }
-    container.innerHTML = filteredVeterans.slice(0, 150).map(item => `
+    container.innerHTML = filteredVeterans.map(item => `
       <div class="veteran-card">
         <div class="veteran-photo">
-          ${item.photoUrl ? `<img src="${item.photoUrl}" loading="lazy" onerror="this.style.display='none'; this.parentElement.innerHTML='<i class=\'fas fa-user-circle fa-2x\'></i>';">` : '<i class="fas fa-user-circle fa-2x"></i>'}
+          ${item.photoUrl ? `<img src="${item.photoUrl}">` : '<i class="fas fa-user-circle fa-2x"></i>'}
         </div>
         <div class="veteran-info">
           <div class="veteran-name">
-            <span><i class="fas fa-medal"></i> ${escapeHtml(item.fullName)}</span>
+            <span>${escapeHtml(item.fullName)}</span>
             <span class="veteran-category">${escapeHtml(item.category)}</span>
           </div>
           <div class="representative"><i class="fas fa-user-check"></i> ${escapeHtml(item.representative)}</div>
-          <div class="bio-short"><i class="fas fa-book-open"></i> ${escapeHtml((item.biography || 'Нет описания').substring(0, 110))}</div>
+          <div class="bio-short">${escapeHtml((item.biography || '').substring(0, 110))}</div>
         </div>
       </div>
     `).join('');
@@ -484,11 +458,7 @@
 
   function filterList(q) {
     const lower = q.toLowerCase();
-    filteredVeterans = lower ? allVeterans.filter(v =>
-      (v.fullName+'').toLowerCase().includes(lower) ||
-      (v.biography+'').toLowerCase().includes(lower) ||
-      (v.representative+'').toLowerCase().includes(lower)
-    ) : [...allVeterans];
+    filteredVeterans = lower ? allVeterans.filter(v => v.fullName.toLowerCase().includes(lower)) : [...allVeterans];
     render();
   }
 
