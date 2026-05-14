@@ -43,7 +43,7 @@
   }
   .header p { font-size: 0.9rem; color: #e8debc; margin-top: 5px; }
   .container {
-    max-width: 800px;
+    max-width: 900px;
     margin: 0 auto;
     padding: 30px 24px 50px;
   }
@@ -59,101 +59,145 @@
     margin-bottom: 25px;
     transition: 0.2s;
     border: 1px solid rgba(255,215,0,0.3);
+    font-size: 0.9rem;
   }
   .back-btn:hover {
     background: rgba(255,215,0,0.35);
     transform: translateX(-3px);
   }
   .veteran-card-full {
-    background: rgba(12,15,24,0.9);
+    background: rgba(12,15,24,0.92);
     backdrop-filter: blur(14px);
-    border-radius: 36px;
-    padding: 32px;
-    border: 1px solid rgba(255,215,0,0.35);
+    border-radius: 40px;
+    padding: 40px;
+    border: 1px solid rgba(255,215,0,0.4);
+    box-shadow: 0 20px 40px rgba(0,0,0,0.3);
   }
   .veteran-header {
     display: flex;
-    gap: 24px;
+    gap: 32px;
     flex-wrap: wrap;
-    margin-bottom: 28px;
-    border-bottom: 1px solid rgba(255,215,0,0.2);
-    padding-bottom: 24px;
+    margin-bottom: 40px;
+    border-bottom: 1px solid rgba(255,215,0,0.25);
+    padding-bottom: 32px;
   }
   .veteran-photo-large {
     flex-shrink: 0;
-    width: 180px;
-    height: 180px;
-    border-radius: 24px;
+    width: 220px;
+    height: 220px;
+    border-radius: 28px;
     overflow: hidden;
     background: #1e212e;
     border: 3px solid #F9B81B;
+    box-shadow: 0 8px 20px rgba(0,0,0,0.3);
   }
   .veteran-photo-large img {
     width: 100%;
     height: 100%;
     object-fit: cover;
   }
+  .veteran-photo-large i {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    height: 100%;
+    color: #9e966b;
+    font-size: 5rem;
+  }
   .veteran-title {
     flex: 1;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
   }
   .veteran-title .name {
-    font-size: 1.8rem;
+    font-size: 2.2rem;
     font-weight: 700;
     color: #FFE9B6;
-    margin-bottom: 8px;
+    margin-bottom: 12px;
+    line-height: 1.2;
   }
   .veteran-title .category {
     display: inline-block;
     background: rgba(249,184,27,0.25);
-    padding: 6px 14px;
-    border-radius: 30px;
+    padding: 8px 18px;
+    border-radius: 40px;
     color: #F9B81B;
-    font-size: 0.8rem;
-    margin-bottom: 12px;
+    font-size: 0.9rem;
+    font-weight: 500;
+    margin-bottom: 16px;
+    align-self: flex-start;
   }
   .veteran-title .date {
-    font-size: 0.8rem;
+    font-size: 0.85rem;
     color: #aaa;
-    margin-top: 10px;
-  }
-  .info-section {
-    margin-bottom: 24px;
-  }
-  .info-section h3 {
-    font-size: 1.2rem;
-    color: #F9B81B;
-    margin-bottom: 12px;
     display: flex;
     align-items: center;
     gap: 8px;
-    border-left: 3px solid #F9B81B;
-    padding-left: 12px;
   }
-  .info-section p {
-    font-size: 1rem;
-    line-height: 1.5;
-    color: #ddd;
-    background: rgba(0,0,0,0.3);
-    padding: 12px 16px;
-    border-radius: 20px;
+  .info-section {
+    margin-bottom: 32px;
+  }
+  .info-section h3 {
+    font-size: 1.3rem;
+    color: #F9B81B;
+    margin-bottom: 16px;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    border-left: 4px solid #F9B81B;
+    padding-left: 16px;
+  }
+  .info-section h3 i {
+    font-size: 1.2rem;
   }
   .info-section .representative {
-    background: rgba(0,0,0,0.3);
-    padding: 12px 16px;
-    border-radius: 20px;
+    background: rgba(0,0,0,0.35);
+    padding: 16px 20px;
+    border-radius: 24px;
     color: #ddd;
+    font-size: 1.1rem;
+    display: flex;
+    align-items: center;
+    gap: 12px;
   }
   .info-section .representative i {
     color: #F9B81B;
+    font-size: 1.2rem;
+  }
+  .info-section .biography-text {
+    background: rgba(0,0,0,0.35);
+    padding: 20px;
+    border-radius: 24px;
+    color: #ddd;
+    font-size: 1rem;
+    line-height: 1.6;
+    white-space: pre-wrap;
+    word-break: break-word;
+  }
+  .info-section .biography-text i {
+    color: #F9B81B;
     margin-right: 8px;
   }
-  @media (max-width: 600px) {
+  .full-name-block {
+    background: rgba(0,0,0,0.3);
+    padding: 12px 16px;
+    border-radius: 20px;
+    margin-bottom: 20px;
+  }
+  .full-name-block span {
+    color: #F9B81B;
+    font-weight: 500;
+  }
+  @media (max-width: 700px) {
+    .veteran-card-full { padding: 24px; }
     .veteran-header { flex-direction: column; align-items: center; text-align: center; }
     .veteran-title { text-align: center; }
-    .veteran-photo-large { width: 150px; height: 150px; }
-    .veteran-title .name { font-size: 1.4rem; }
-    .container { padding: 20px 16px 40px; }
-    .veteran-card-full { padding: 20px; }
+    .veteran-title .category { align-self: center; }
+    .veteran-title .name { font-size: 1.6rem; }
+    .veteran-photo-large { width: 180px; height: 180px; }
+    .info-section h3 { font-size: 1.1rem; }
+    .info-section .representative { font-size: 1rem; }
   }
   .error-message {
     text-align: center;
@@ -163,6 +207,11 @@
   }
   .error-message i { font-size: 3rem; color: #ff6b6b; margin-bottom: 20px; }
   .error-message a { color: #F9B81B; text-decoration: none; }
+  .loading-spinner {
+    text-align: center;
+    padding: 60px;
+  }
+  .loading-spinner i { font-size: 3rem; color: #F9B81B; }
 </style>
 </head>
 <body>
@@ -176,15 +225,30 @@
   <a href="index.html" class="back-btn"><i class="fas fa-arrow-left"></i> Назад к стене памяти</a>
   
   <div id="veteran-content">
-    <!-- Содержимое загрузится через JS -->
+    <div class="loading-spinner"><i class="fas fa-spinner fa-pulse"></i><br>Загрузка данных...</div>
   </div>
 </div>
 
 <script>
   function formatDate(dateString) {
     if (!dateString) return 'Дата не указана';
-    const date = new Date(dateString);
-    return date.toLocaleDateString('ru-RU', { day: '2-digit', month: '2-digit', year: 'numeric', hour: '2-digit', minute: '2-digit' });
+    try {
+      const date = new Date(dateString);
+      return date.toLocaleDateString('ru-RU', { 
+        day: '2-digit', 
+        month: '2-digit', 
+        year: 'numeric', 
+        hour: '2-digit', 
+        minute: '2-digit' 
+      });
+    } catch(e) {
+      return dateString;
+    }
+  }
+
+  function escapeHtml(s) { 
+    if (!s) return ''; 
+    return s.replace(/[&<>]/g, m => ({ '&':'&amp;', '<':'&lt;', '>':'&gt;' }[m] || m));
   }
 
   function loadVeteran() {
@@ -205,11 +269,17 @@
     
     const veteran = JSON.parse(veteranData);
     
+    // Формируем HTML для фото
+    const photoHtml = veteran.photoUrl 
+      ? `<img src="${veteran.photoUrl}" alt="${escapeHtml(veteran.fullName)}" onerror="this.parentElement.innerHTML='<i class=\\'fas fa-user-circle\\'></i>';">`
+      : '<i class="fas fa-user-circle"></i>';
+    
+    // Формируем полную карточку
     container.innerHTML = `
       <div class="veteran-card-full">
         <div class="veteran-header">
           <div class="veteran-photo-large">
-            ${veteran.photoUrl ? `<img src="${veteran.photoUrl}" alt="${escapeHtml(veteran.fullName)}" onerror="this.parentElement.innerHTML='<i class=\\'fas fa-user-circle fa-3x\\' style=\\'display:flex;align-items:center;justify-content:center;height:100%;color:#9e966b;\\'></i>';">` : '<i class="fas fa-user-circle fa-3x" style="display:flex;align-items:center;justify-content:center;height:100%;color:#9e966b;"></i>'}
+            ${photoHtml}
           </div>
           <div class="veteran-title">
             <div class="name">${escapeHtml(veteran.fullName)}</div>
@@ -218,19 +288,30 @@
           </div>
         </div>
         
+        <div class="full-name-block">
+          <span><i class="fas fa-user"></i> Полное имя:</span> ${escapeHtml(veteran.fullName)}
+        </div>
+        
         <div class="info-section">
           <h3><i class="fas fa-user-friends"></i> Представитель</h3>
-          <div class="representative"><i class="fas fa-user-check"></i> ${escapeHtml(veteran.representative)}</div>
+          <div class="representative">
+            <i class="fas fa-user-check"></i> 
+            ${escapeHtml(veteran.representative) || 'Не указан'}
+          </div>
         </div>
         
         <div class="info-section">
           <h3><i class="fas fa-book-open"></i> Биография</h3>
-          <p>${escapeHtml(veteran.biography).replace(/\n/g, '<br>') || 'Нет описания'}</p>
+          <div class="biography-text">
+            <i class="fas fa-feather-alt"></i> 
+            ${escapeHtml(veteran.biography || 'Нет описания').replace(/\n/g, '<br>')}
+          </div>
         </div>
       </div>
     `;
   }
   
-  function escapeHtml(s) { 
-    if (!s) return ''; 
-    return s.replace(/[&<>]/g, m => ({ '&':'&amp;', '<':'&lt
+  loadVeteran();
+</script>
+</body>
+</html>
